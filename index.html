@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Day Radar</title>
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" type="image/png" href="icon.png">
-<title>Day Radar</title>
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* ============ THEMES (matching Job Tracker) ============ */
+  /* ============ THEMES ============ */
   [data-theme="shoji"] {
     --bg: #f7f4ee; --surface: #fdfbf6; --surface-2: #f0ece4;
     --border: #e3ddd1; --border-strong: #cfc7b6;
@@ -101,7 +101,6 @@
   .display { font-family: "Fraunces", Georgia, serif; font-weight: 500; letter-spacing: -0.02em; }
   .app { max-width: 1100px; margin: 0 auto; padding: 24px 20px 100px; }
 
-  /* Icons */
   .icon { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle; flex-shrink: 0; }
   .icon-sm { width: 13px; height: 13px; }
   .icon-lg { width: 20px; height: 20px; }
@@ -109,10 +108,15 @@
   /* Header */
   .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; gap: 12px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-icon { width: 36px; height: 36px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+  .brand-icon {
+    width: 36px; height: 36px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+  }
   .brand-icon .icon { width: 18px; height: 18px; }
   .brand-icon-img { background: transparent; border: none; padding: 0; overflow: hidden; }
-  .brand-icon-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
+  .brand-icon-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); display: block; }
   .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
   .brand-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
   .brand-date { font-size: 11px; color: var(--text-2); }
@@ -130,11 +134,11 @@
   .tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
   .tab:not(.active):hover { color: var(--text); }
 
-  /* Main layout — Beaker + Agenda side-by-side on desktop */
+  /* Layout */
   .main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
   @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
 
-  /* ============ BEAKER (vertical day) ============ */
+  /* Beaker */
   .beaker-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; position: sticky; top: 20px; height: fit-content; }
   .beaker-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .clock { font-family: "Fraunces", serif; font-size: 32px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -176,7 +180,6 @@
   .seg-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
   .seg-time { font-size: 9.5px; color: inherit; opacity: 0.7; margin-left: 6px; font-variant-numeric: tabular-nums; }
 
-  /* The NOW line */
   .now-line {
     position: absolute; left: -2px; right: -2px;
     height: 0; border-top: 2px solid var(--danger);
@@ -195,11 +198,10 @@
     border: 1px solid var(--danger);
   }
 
-  /* Beaker endcaps */
   .beaker-cap { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); padding: 0 4px; font-variant-numeric: tabular-nums; }
   .beaker-cap .icon-sm { margin-right: 4px; }
 
-  /* The summary sentence */
+  /* Summary */
   .summary { padding: 14px; background: var(--bg); border-radius: var(--radius); margin-top: 14px; font-size: 13px; line-height: 1.5; }
   .summary.on-track { color: var(--text-2); }
   .summary.tight { color: var(--warning); background: var(--warning-soft); }
@@ -208,14 +210,14 @@
   .summary.tight .summary-num { color: var(--warning); }
   .summary.over .summary-num { color: var(--danger); }
 
-  /* ============ AGENDA ============ */
+  /* Agenda */
   .agenda { display: flex; flex-direction: column; gap: 14px; }
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
   .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .panel-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); display: flex; align-items: center; gap: 6px; }
   .panel-count { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
 
-  /* Task row */
+  /* Task rows */
   .task-list { display: flex; flex-direction: column; }
   .task { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 4px; }
   .task:hover { background: var(--bg); }
@@ -248,11 +250,6 @@
   .behind-tray .task:hover { background: rgba(255,255,255,0.3); }
   [data-theme="sumi"] .behind-tray .task:hover { background: rgba(255,255,255,0.05); }
 
-  /* Quick add */
-  .quick-add { display: flex; gap: 8px; align-items: center; padding: 12px; background: var(--surface-2); border-radius: var(--radius); margin-top: 10px; }
-  .quick-add input { flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); font-size: 13px; font-family: inherit; }
-  .quick-add input:focus { outline: 2px solid var(--accent-soft); outline-offset: -1px; border-color: var(--accent); }
-
   /* Buttons */
   .btn { padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
@@ -266,7 +263,7 @@
   .empty { padding: 32px 16px; text-align: center; color: var(--text-2); font-size: 13px; }
   .empty-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
 
-  /* Form / modal */
+  /* Modal */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(20,18,12,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
   .modal-backdrop.show { display: flex; }
   .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; max-width: 480px; width: 100%; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
@@ -290,7 +287,7 @@
   .day-pill.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
   .form-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
 
-  /* ============ CALENDAR / HISTORY ============ */
+  /* Calendar */
   .calendar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
   .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .cal-title { font-family: "Fraunces", serif; font-size: 18px; font-weight: 500; }
@@ -318,7 +315,7 @@
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text); color: var(--surface); padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 1000; transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); pointer-events: none; }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-  /* Theme grid (in settings) */
+  /* Theme grid */
   .theme-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
   .theme-option { padding: 10px 8px; border: 2px solid var(--border); border-radius: var(--radius); cursor: pointer; background: var(--surface); transition: all 0.15s; text-align: center; }
   .theme-option:hover { border-color: var(--border-strong); }
@@ -341,6 +338,7 @@
     .beaker { height: 360px; }
     .header { gap: 8px; }
     .theme-grid { grid-template-columns: repeat(3, 1fr); }
+    .task-check { width: 22px; height: 22px; }
   }
 </style>
 </head>
@@ -359,7 +357,6 @@
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></symbol>
     <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
-    <symbol id="i-archive" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/></symbol>
     <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
     <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
     <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></symbol>
@@ -370,13 +367,14 @@
 </svg>
 
 <div class="app">
-  <div class="brand">
-    <div class="brand-icon brand-icon-img"><img src="icon.png" alt="Day Radar" /></div>
-    <div class="brand-text">
-      <div class="brand-title display">Day Radar</div>
-      <div class="brand-date" id="brandDate">—</div>
-  </div>
-</div>
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon brand-icon-img"><img src="icon.png" alt="Day Radar" /></div>
+      <div class="brand-text">
+        <div class="brand-title display">Day Radar</div>
+        <div class="brand-date" id="brandDate">—</div>
+      </div>
+    </div>
     <div class="header-actions">
       <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">Local only</span></div>
       <button class="btn btn-sm" onclick="openSettings()"><svg class="icon icon-sm"><use href="#i-settings"/></svg>Settings</button>
@@ -389,15 +387,12 @@
     <button class="tab" data-tab="routines" onclick="switchTab('routines')"><svg class="icon icon-sm"><use href="#i-repeat"/></svg>Routines</button>
   </div>
 
-  <!-- TODAY TAB -->
+  <!-- TODAY -->
   <div id="tab-today" class="tab-pane">
     <div class="main-grid">
-      <!-- Beaker -->
       <div class="beaker-card">
         <div class="beaker-header">
-          <div>
-            <span class="clock" id="clockHHMM">—</span><span class="clock-meridiem" id="clockAP"></span>
-          </div>
+          <div><span class="clock" id="clockHHMM">—</span><span class="clock-meridiem" id="clockAP"></span></div>
           <div class="day-meta">
             <div class="day-label" id="dayDateLabel">—</div>
             <div class="day-name" id="dayName">—</div>
@@ -411,7 +406,6 @@
         <div class="summary" id="summary">—</div>
       </div>
 
-      <!-- Agenda -->
       <div class="agenda">
         <div class="panel behind-tray" id="behindTray" style="display:none">
           <div class="panel-header">
@@ -432,7 +426,7 @@
     </div>
   </div>
 
-  <!-- HISTORY TAB -->
+  <!-- HISTORY -->
   <div id="tab-history" class="tab-pane" style="display:none">
     <div class="week-summary">
       <div class="summary-week-label">Last 7 days · <span id="weekTotal">0 tasks done · 0h work</span></div>
@@ -449,14 +443,11 @@
         </div>
       </div>
       <div class="week-strip" id="weekStrip"></div>
-
-      <div id="historyDayView">
-        <div class="empty">Select a day to view what happened.</div>
-      </div>
+      <div id="historyDayView"><div class="empty">Select a day to view what happened.</div></div>
     </div>
   </div>
 
-  <!-- ROUTINES TAB -->
+  <!-- ROUTINES -->
   <div id="tab-routines" class="tab-pane" style="display:none">
     <div class="panel">
       <div class="panel-header">
@@ -464,7 +455,7 @@
         <button class="btn btn-sm btn-primary" onclick="openAddRoutine()"><svg class="icon icon-sm"><use href="#i-plus"/></svg>Add Routine</button>
       </div>
       <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;">
-        Things that repeat. Fixed blocks (like meals, workouts) are pre-filled into your day. Repeating tasks appear on selected days.
+        Things that repeat. They auto-fill into your day on the days you select.
       </div>
       <div class="task-list" id="routineList"></div>
     </div>
@@ -480,16 +471,13 @@
     <h2 id="taskModalTitle">Add Task</h2>
     <div class="modal-sub" id="taskModalSub">What needs to happen?</div>
 
-    <div class="form-row">
-      <label>Title</label>
-      <input type="text" id="t_title" placeholder="e.g. Cover letter for Pfizer" />
-    </div>
+    <div class="form-row"><label>Title</label><input type="text" id="t_title" placeholder="e.g. Cover letter for Pfizer" /></div>
 
     <div class="form-row">
       <label>Type</label>
       <div class="type-grid">
         <button class="type-btn" data-type="task" onclick="setType('task')"><svg class="icon icon-sm"><use href="#i-list"/></svg>Task</button>
-        <button class="type-btn" data-type="fixed" onclick="setType('fixed')"><svg class="icon icon-sm"><use href="#i-pin"/></svg>Fixed block</button>
+        <button class="type-btn" data-type="fixed" onclick="setType('fixed')"><svg class="icon icon-sm"><use href="#i-pin"/></svg>Block</button>
         <button class="type-btn" data-type="meal" onclick="setType('meal')"><svg class="icon icon-sm"><use href="#i-coffee"/></svg>Meal</button>
         <button class="type-btn" data-type="appt" onclick="setType('appt')"><svg class="icon icon-sm"><use href="#i-clock"/></svg>Appointment</button>
       </div>
@@ -555,8 +543,8 @@
   </div>
 </div>
 
-<!-- Actual Duration Modal -->
-<div class="modal-backdrop" id="durationModal" onclick="if(event.target===this)closeDurationModal()">
+<!-- Duration Modal -->
+<div class="modal-backdrop" id="durationModal" onclick="if(event.target===this)cancelDuration()">
   <div class="modal" style="max-width: 380px">
     <h2 id="durationTitle">How long did it take?</h2>
     <div class="modal-sub" id="durationSub">No wrong answer — this just helps you plan better next time.</div>
@@ -576,8 +564,9 @@
       <div style="display:flex; gap:8px;">
         <button class="btn" onclick="skipDuration()">Skip log</button>
         <button class="btn btn-primary" onclick="saveDuration()">Save</button>
+      </div>
+    </div>
   </div>
-</div>
 </div>
 
 <!-- Settings Modal -->
@@ -593,14 +582,8 @@
 
     <h3 style="margin:0 0 10px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-2);">Day Hours</h3>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <div class="form-row" style="margin:0">
-        <label>Wake</label>
-        <input type="time" id="wakeTime" onchange="saveDayHours()" />
-      </div>
-      <div class="form-row" style="margin:0">
-        <label>Bedtime</label>
-        <input type="time" id="bedTime" onchange="saveDayHours()" />
-      </div>
+      <div class="form-row" style="margin:0"><label>Wake</label><input type="time" id="wakeTime" onchange="saveDayHours()" /></div>
+      <div class="form-row" style="margin:0"><label>Bedtime</label><input type="time" id="bedTime" onchange="saveDayHours()" /></div>
     </div>
 
     <hr style="border:none; border-top:1px solid var(--border); margin: 18px 0;" />
@@ -647,18 +630,14 @@ function renderThemeGrid() {
 
 /* ============ STATE ============ */
 let state = {
-  // tasks: { id, title, type, chunk, time, date (YYYY-MM-DD or null for routine), days: [0-6] or null,
-  //          done: bool, doneAt, actualMin, skipped, behindOf }
-  tasks: [],
-  routines: [], // same shape but `days` is set
-  wakeTime: "07:00",
-  bedTime: "22:30",
+  tasks: [], routines: [],
+  wakeTime: "07:00", bedTime: "22:30",
   syncUrl: "",
   selectedHistoryDate: todayIso(),
-  weekOffset: 0, // 0 = this week, -1 = last week
+  weekOffset: 0,
 };
-
 let editing = { id: null, type: "task", chunk: 30, days: [] };
+let _editingIsRoutine = false;
 let rescheduleTargetId = null;
 let durationContext = { id: null, estimate: 0, actual: 0 };
 
@@ -749,39 +728,17 @@ function queueSync() {
 
 /* ============ TIME HELPERS ============ */
 function timeToMin(t) { if (!t) return null; const [h,m] = t.split(":").map(Number); return h*60+m; }
-function minToTime(m) {
-  m = Math.round(m);
-  const h = Math.floor(m / 60) % 24;
-  const min = m % 60;
-  return `${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}`;
-}
-function format12(t) {
-  if (!t) return "";
-  const [h, m] = t.split(":").map(Number);
-  const am = h < 12;
-  let hh = h % 12; if (hh === 0) hh = 12;
-  return `${hh}:${String(m).padStart(2,"0")} ${am ? "AM" : "PM"}`;
-}
-function format12Short(t) {
-  if (!t) return "";
-  const [h, m] = t.split(":").map(Number);
-  const am = h < 12;
-  let hh = h % 12; if (hh === 0) hh = 12;
-  return m === 0 ? `${hh}${am?"a":"p"}` : `${hh}:${String(m).padStart(2,"0")}${am?"a":"p"}`;
-}
-function nowMin() {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}
+function minToTime(m) { m = Math.round(m); const h = Math.floor(m / 60) % 24; const min = m % 60; return `${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}`; }
+function format12(t) { if (!t) return ""; const [h, m] = t.split(":").map(Number); const am = h < 12; let hh = h % 12; if (hh === 0) hh = 12; return `${hh}:${String(m).padStart(2,"0")} ${am ? "AM" : "PM"}`; }
+function format12Short(t) { if (!t) return ""; const [h, m] = t.split(":").map(Number); const am = h < 12; let hh = h % 12; if (hh === 0) hh = 12; return m === 0 ? `${hh}${am?"a":"p"}` : `${hh}:${String(m).padStart(2,"0")}${am?"a":"p"}`; }
+function nowMin() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
 function dayLength() {
-  // returns minutes from wake to bed, handles bedtime past midnight
   let wake = timeToMin(state.wakeTime);
   let bed = timeToMin(state.bedTime);
   if (bed <= wake) bed += 24*60;
   return bed - wake;
 }
 function pctFromTop(min) {
-  // returns 0-100 percentage of beaker height for a given minute-of-day
   const wake = timeToMin(state.wakeTime);
   const len = dayLength();
   let v = min - wake;
@@ -790,29 +747,21 @@ function pctFromTop(min) {
   return (v / len) * 100;
 }
 
-/* ============ TODAY VIEW DATA ============ */
+/* ============ TODAY DATA ============ */
 function getTodaysTasks() {
   const today = todayIso();
   const dow = new Date().getDay();
-  // One-off tasks dated today (or skipped/done today)
   const oneOff = state.tasks.filter(t => t.date === today);
-  // Routines that match today's day-of-week
   const routinesActive = state.routines.filter(r => Array.isArray(r.days) && r.days.includes(dow));
-  // Materialize routines as today's tasks (use stable id = "rt:<routineId>:<date>")
   const routineTasks = routinesActive.map(r => {
     const tid = `rt:${r.id}:${today}`;
-    // If there's already a tracked instance (done/skipped/actualMin) for today, prefer it
     const existing = state.tasks.find(t => t.id === tid);
     if (existing) return existing;
-    return {
-      id: tid, title: r.title, type: r.type, chunk: r.chunk, time: r.time,
-      date: today, done: false, fromRoutine: true,
-    };
+    return { id: tid, title: r.title, type: r.type, chunk: r.chunk, time: r.time, date: today, done: false, fromRoutine: true };
   });
   return [...oneOff, ...routineTasks];
 }
 function ensureRoutineInstance(id) {
-  // If a routine-derived task gets toggled/edited, persist it in state.tasks
   if (!id.startsWith("rt:")) return state.tasks.find(t => t.id === id);
   let t = state.tasks.find(x => x.id === id);
   if (!t) {
@@ -823,21 +772,16 @@ function ensureRoutineInstance(id) {
   return t;
 }
 
-/* ============ RENDER: CLOCK & DATE ============ */
+/* ============ RENDER: CLOCK ============ */
 function renderClock() {
   const d = new Date();
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12;
-  let hh = h % 12; if (hh === 0) hh = 12;
+  let h = d.getHours(); const m = d.getMinutes();
+  const am = h < 12; let hh = h % 12; if (hh === 0) hh = 12;
   document.getElementById("clockHHMM").textContent = `${hh}:${String(m).padStart(2,"0")}`;
   document.getElementById("clockAP").textContent = am ? "AM" : "PM";
-
-  const opts = { weekday: "long", month: "long", day: "numeric" };
-  const fullDate = d.toLocaleDateString("en-US", opts);
   document.getElementById("dayName").textContent = d.toLocaleDateString("en-US", { weekday: "long" });
   document.getElementById("dayDateLabel").textContent = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  document.getElementById("brandDate").textContent = fullDate;
+  document.getElementById("brandDate").textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 
 /* ============ RENDER: BEAKER ============ */
@@ -845,26 +789,18 @@ function renderBeaker() {
   const wake = timeToMin(state.wakeTime);
   const bed = timeToMin(state.bedTime); const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
   const now = nowMin();
-  const len = dayLength();
-
   document.getElementById("wakeLabel").textContent = format12(state.wakeTime);
   document.getElementById("bedLabel").innerHTML = format12(state.bedTime) + ' <svg class="icon icon-sm"><use href="#i-moon"/></svg>';
 
-  // Build list of timed blocks for today (fixed/meal/appt that have time set, plus tasks w/ time)
   const today = getTodaysTasks();
   const timedBlocks = today
     .filter(t => t.time && !t.skipped)
-    .map(t => {
-      const start = timeToMin(t.time);
-      return { id: t.id, title: t.title, type: t.type || "task", chunk: t.chunk || 30, start, end: start + (t.chunk || 30), done: !!t.done };
-    })
+    .map(t => { const start = timeToMin(t.time); return { id: t.id, title: t.title, type: t.type || "task", chunk: t.chunk || 30, start, end: start + (t.chunk || 30), done: !!t.done }; })
     .sort((a,b) => a.start - b.start);
 
-  // Render segments
   const inner = document.getElementById("beakerInner");
   let html = "";
 
-  // Draw fixed/timed blocks
   timedBlocks.forEach(b => {
     if (b.end <= wake || b.start >= bedAdj) return;
     const top = pctFromTop(Math.max(b.start, wake));
@@ -875,9 +811,7 @@ function renderBeaker() {
     if (b.type === "meal") cls += " f-meal";
     else if (b.type === "appt") cls += " f-appt";
     else if (b.type === "task") cls = "seg-planned";
-    // Active if NOW is inside
     if (now >= b.start && now < b.end && !b.done) cls += " seg-active";
-    // Done blocks become elapsed-done
     if (b.done) cls = "seg-elapsed-done";
     html += `<div class="beaker-segment ${cls}" style="top:${top}%; height:${h}%" title="${escapeHtml(b.title)}">
       <span class="seg-label">${escapeHtml(b.title)}</span>
@@ -885,9 +819,6 @@ function renderBeaker() {
     </div>`;
   });
 
-  // Draw elapsed overlay (semi-transparent grey over past portion that isn't fixed)
-  // For simplicity, just shade the band above NOW that isn't already covered by a block
-  // Done via a thin overlay using gradient — simpler: add a single elapsed seg behind everything
   if (now > wake) {
     const elapsedPct = pctFromTop(now);
     html = `<div class="beaker-segment seg-elapsed" style="top:0%; height:${elapsedPct}%; z-index:0; border-top:none"></div>` + html;
@@ -895,21 +826,16 @@ function renderBeaker() {
 
   inner.innerHTML = html;
 
-  // Position now line
   const nowPct = pctFromTop(now);
   const nl = document.getElementById("nowLine");
-  if (now < wake || now > bedAdj) {
-    nl.style.display = "none";
-  } else {
-    nl.style.display = "block";
-    nl.style.top = nowPct + "%";
-  }
+  if (now < wake || now > bedAdj) { nl.style.display = "none"; }
+  else { nl.style.display = "block"; nl.style.top = nowPct + "%"; }
 }
 
 /* ============ RENDER: AGENDA ============ */
 function isBehind(t) {
   if (t.done || t.skipped) return false;
-  if (!t.time) return false; // anytime tasks aren't behind
+  if (!t.time) return false;
   const start = timeToMin(t.time);
   const end = start + (t.chunk || 30);
   return nowMin() > end;
@@ -918,24 +844,14 @@ function renderAgenda() {
   const today = getTodaysTasks();
   const behindList = today.filter(isBehind);
   const upcoming = today.filter(t => !isBehind(t));
-
-  // Behind tray
   const tray = document.getElementById("behindTray");
-  if (behindList.length === 0) {
-    tray.style.display = "none";
-  } else {
+  if (behindList.length === 0) tray.style.display = "none";
+  else {
     tray.style.display = "block";
     document.getElementById("behindCount").textContent = behindList.length;
     document.getElementById("behindList").innerHTML = behindList.map(t => taskRow(t, true)).join("");
   }
-
-  // Today list — sort: timed first by time, then anytime
-  upcoming.sort((a,b) => {
-    const at = a.time ? timeToMin(a.time) : 9999;
-    const bt = b.time ? timeToMin(b.time) : 9999;
-    return at - bt;
-  });
-
+  upcoming.sort((a,b) => { const at = a.time ? timeToMin(a.time) : 9999; const bt = b.time ? timeToMin(b.time) : 9999; return at - bt; });
   if (upcoming.length === 0) {
     document.getElementById("taskList").innerHTML = `<div class="empty">Nothing scheduled.<div class="empty-sub">Click + Add Task to start.</div></div>`;
   } else {
@@ -944,7 +860,7 @@ function renderAgenda() {
 }
 function taskRow(t, isBehindRow) {
   const tagCls = t.type === "meal" ? "t-meal" : t.type === "appt" ? "t-appt" : t.type === "fixed" ? "t-fixed" : "";
-  const typeLabel = t.type === "meal" ? "meal" : t.type === "appt" ? "appt" : t.type === "fixed" ? "fixed" : null;
+  const typeLabel = t.type === "meal" ? "meal" : t.type === "appt" ? "appt" : t.type === "fixed" ? "block" : null;
   const timeStr = t.time ? format12Short(t.time) : "anytime";
   const chunkStr = (t.chunk || 30) >= 60 ? `${(t.chunk/60).toFixed(t.chunk%60?1:0)}h` : `${t.chunk}m`;
   const repeatTag = t.fromRoutine ? `<span class="task-tag t-repeat"><svg class="icon icon-sm"><use href="#i-repeat"/></svg></span>` : "";
@@ -959,117 +875,66 @@ function taskRow(t, isBehindRow) {
     <div class="task-time">${timeStr}</div>
     <div class="task-body">
       <div class="task-title">${escapeHtml(t.title)}</div>
-      <div class="task-meta">
-        ${chunkStr} ${repeatTag} ${typeTag}
-      </div>
+      <div class="task-meta">${chunkStr} ${repeatTag} ${typeTag}</div>
     </div>
     <div class="task-actions">${action}</div>
   </div>`;
 }
 
-/* ============ RENDER: SUMMARY SENTENCE ============ */
+/* ============ RENDER: SUMMARY ============ */
 function renderSummary() {
   const wake = timeToMin(state.wakeTime);
   const bed = timeToMin(state.bedTime); const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
   const now = nowMin();
   const today = getTodaysTasks();
   const remainingMin = Math.max(0, bedAdj - now);
-
-  // Plan needed = sum of (not done, not skipped) tasks/blocks. Use chunk.
-  const planNeeded = today
-    .filter(t => !t.done && !t.skipped)
-    .reduce((s, t) => s + (t.chunk || 30), 0);
-
-  const fmtHr = (m) => {
-    if (m <= 0) return "0m";
-    const h = Math.floor(m / 60); const mm = m % 60;
-    if (h && mm) return `${h}h ${mm}m`;
-    if (h) return `${h}h`;
-    return `${mm}m`;
-  };
-
+  const planNeeded = today.filter(t => !t.done && !t.skipped).reduce((s, t) => s + (t.chunk || 30), 0);
+  const fmtHr = (m) => { if (m <= 0) return "0m"; const h = Math.floor(m / 60); const mm = m % 60; if (h && mm) return `${h}h ${mm}m`; if (h) return `${h}h`; return `${mm}m`; };
   const summary = document.getElementById("summary");
-  if (now < wake) {
-    summary.className = "summary on-track";
-    summary.innerHTML = `Day starts at <span class="summary-num">${format12(state.wakeTime)}</span>. ${fmtHr(planNeeded)} planned for today.`;
-    return;
-  }
-  if (now >= bedAdj) {
-    summary.className = "summary on-track";
-    summary.innerHTML = `Past bedtime. ${today.filter(t=>t.done).length} done · ${today.filter(t=>!t.done && !t.skipped).length} unfinished.`;
-    return;
-  }
-
+  if (now < wake) { summary.className = "summary on-track"; summary.innerHTML = `Day starts at <span class="summary-num">${format12(state.wakeTime)}</span>. ${fmtHr(planNeeded)} planned for today.`; return; }
+  if (now >= bedAdj) { summary.className = "summary on-track"; summary.innerHTML = `Past bedtime. ${today.filter(t=>t.done).length} done · ${today.filter(t=>!t.done && !t.skipped).length} unfinished.`; return; }
   const overshoot = planNeeded - remainingMin;
-  if (overshoot <= 0 && remainingMin - planNeeded > 60) {
-    summary.className = "summary on-track";
-    summary.innerHTML = `<span class="summary-num">${fmtHr(remainingMin)}</span> usable. Plan needs <span class="summary-num">${fmtHr(planNeeded)}</span>. On track — bedtime ${format12(state.bedTime)}.`;
-  } else if (overshoot <= 0) {
-    summary.className = "summary tight";
-    summary.innerHTML = `<span class="summary-num">${fmtHr(remainingMin)}</span> usable. Plan needs <span class="summary-num">${fmtHr(planNeeded)}</span>. Tight but doable, no buffer.`;
-  } else {
-    // Overcommitted — compute "if I do everything, bedtime would be"
-    const endsAtMin = (now + planNeeded) % (24*60);
-    const endsAt = minToTime(endsAtMin);
-    summary.className = "summary over";
-    summary.innerHTML = `<span class="summary-num">${fmtHr(remainingMin)}</span> usable. Plan needs <span class="summary-num">${fmtHr(planNeeded)}</span>. If you do everything: bedtime <span class="summary-num">${format12(endsAt)}</span> (${fmtHr(overshoot)} late).`;
-  }
+  if (overshoot <= 0 && remainingMin - planNeeded > 60) { summary.className = "summary on-track"; summary.innerHTML = `<span class="summary-num">${fmtHr(remainingMin)}</span> usable. Plan needs <span class="summary-num">${fmtHr(planNeeded)}</span>. On track — bedtime ${format12(state.bedTime)}.`; }
+  else if (overshoot <= 0) { summary.className = "summary tight"; summary.innerHTML = `<span class="summary-num">${fmtHr(remainingMin)}</span> usable. Plan needs <span class="summary-num">${fmtHr(planNeeded)}</span>. Tight but doable, no buffer.`; }
+  else { const endsAtMin = (now + planNeeded) % (24*60); const endsAt = minToTime(endsAtMin); summary.className = "summary over"; summary.innerHTML = `<span class="summary-num">${fmtHr(remainingMin)}</span> usable. Plan needs <span class="summary-num">${fmtHr(planNeeded)}</span>. If you do everything: bedtime <span class="summary-num">${format12(endsAt)}</span> (${fmtHr(overshoot)} late).`; }
 }
 
 /* ============ HISTORY ============ */
 function getWeekDays(offset) {
   const base = new Date();
   base.setDate(base.getDate() + offset * 7);
-  // Start from Sunday
   const dow = base.getDay();
   const start = new Date(base);
   start.setDate(base.getDate() - dow);
-  return Array.from({length:7}, (_,i) => {
-    const d = new Date(start); d.setDate(start.getDate()+i);
-    return d.toISOString().split("T")[0];
-  });
+  return Array.from({length:7}, (_,i) => { const d = new Date(start); d.setDate(start.getDate()+i); return d.toISOString().split("T")[0]; });
 }
 function tasksForDate(iso) {
   const dow = new Date(iso + "T00:00:00").getDay();
   const oneOff = state.tasks.filter(t => t.date === iso);
-  const routineTasks = state.routines
-    .filter(r => Array.isArray(r.days) && r.days.includes(dow))
-    .map(r => {
-      const tid = `rt:${r.id}:${iso}`;
-      const existing = state.tasks.find(t => t.id === tid);
-      if (existing) return existing;
-      return { id: tid, title: r.title, type: r.type, chunk: r.chunk, time: r.time, date: iso, done: false, fromRoutine: true };
-    });
+  const routineTasks = state.routines.filter(r => Array.isArray(r.days) && r.days.includes(dow)).map(r => {
+    const tid = `rt:${r.id}:${iso}`;
+    const existing = state.tasks.find(t => t.id === tid);
+    if (existing) return existing;
+    return { id: tid, title: r.title, type: r.type, chunk: r.chunk, time: r.time, date: iso, done: false, fromRoutine: true };
+  });
   return [...oneOff, ...routineTasks];
 }
 function renderHistory() {
   const days = getWeekDays(state.weekOffset);
   const today = todayIso();
-  const monthLabel = new Date(days[0] + "T00:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  document.getElementById("calMonth").textContent = monthLabel;
-
-  // Week strip
+  document.getElementById("calMonth").textContent = new Date(days[0] + "T00:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
   document.getElementById("weekStrip").innerHTML = days.map(iso => {
     const d = new Date(iso + "T00:00:00");
     const dow = d.toLocaleDateString("en-US", { weekday: "short" });
     const dayNum = d.getDate();
     const tasks = tasksForDate(iso);
     const doneCount = tasks.filter(t => t.done).length;
-    const isToday = iso === today;
-    const isSel = iso === state.selectedHistoryDate;
-    return `<div class="week-day ${isToday?'today':''} ${isSel?'selected':''}" onclick="selectHistoryDay('${iso}')">
-      <div class="wd-dow">${dow}</div>
-      <div class="wd-date">${dayNum}</div>
-      <div class="wd-count">${doneCount} done</div>
+    return `<div class="week-day ${iso===today?'today':''} ${iso===state.selectedHistoryDate?'selected':''}" onclick="selectHistoryDay('${iso}')">
+      <div class="wd-dow">${dow}</div><div class="wd-date">${dayNum}</div><div class="wd-count">${doneCount} done</div>
     </div>`;
   }).join("");
-
-  // Last 7 days summary (rolling)
   const last7 = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    last7.push(d.toISOString().split("T")[0]);
-  }
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); last7.push(d.toISOString().split("T")[0]); }
   let totalDone = 0, totalMin = 0;
   const bars = last7.map(iso => {
     const tasks = tasksForDate(iso);
@@ -1083,32 +948,18 @@ function renderHistory() {
     const d = new Date(b.iso + "T00:00:00");
     const label = d.toLocaleDateString("en-US", { weekday: "narrow" });
     const heightPct = (b.count / maxCount) * 100;
-    return `<div class="day-bar-wrap">
-      <div class="day-bar ${b.count===0?'empty':''}" style="height: ${heightPct}%" title="${b.count} done"></div>
-      <div class="day-bar-label">${label}</div>
-    </div>`;
+    return `<div class="day-bar-wrap"><div class="day-bar ${b.count===0?'empty':''}" style="height: ${heightPct}%" title="${b.count} done"></div><div class="day-bar-label">${label}</div></div>`;
   }).join("");
   document.getElementById("weekTotal").textContent = `${totalDone} task${totalDone===1?'':'s'} done · ${Math.round(totalMin/60*10)/10}h work`;
-
   renderHistoryDay();
 }
-function selectHistoryDay(iso) {
-  state.selectedHistoryDate = iso;
-  renderHistory();
-}
-function navWeek(dir) {
-  if (dir === 0) state.weekOffset = 0;
-  else state.weekOffset += dir;
-  renderHistory();
-}
+function selectHistoryDay(iso) { state.selectedHistoryDate = iso; renderHistory(); }
+function navWeek(dir) { if (dir === 0) state.weekOffset = 0; else state.weekOffset += dir; renderHistory(); }
 function renderHistoryDay() {
   const iso = state.selectedHistoryDate;
   const tasks = tasksForDate(iso);
   const view = document.getElementById("historyDayView");
-  if (tasks.length === 0) {
-    view.innerHTML = `<div class="empty">Nothing planned or recorded for this day.</div>`;
-    return;
-  }
+  if (tasks.length === 0) { view.innerHTML = `<div class="empty">Nothing planned or recorded for this day.</div>`; return; }
   const done = tasks.filter(t => t.done);
   const skipped = tasks.filter(t => t.skipped);
   const pending = tasks.filter(t => !t.done && !t.skipped);
@@ -1122,8 +973,7 @@ function renderHistoryDay() {
     ${pending.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Pending</div>` : ""}
     <div class="task-list">${pending.map(t => historyRow(t)).join("")}</div>
     ${skipped.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Skipped</div>` : ""}
-    <div class="task-list">${skipped.map(t => historyRow(t)).join("")}</div>
-  `;
+    <div class="task-list">${skipped.map(t => historyRow(t)).join("")}</div>`;
 }
 function historyRow(t) {
   const timeStr = t.time ? format12Short(t.time) : "anytime";
@@ -1132,37 +982,26 @@ function historyRow(t) {
   return `<div class="task ${t.done?'done':''} ${t.skipped?'done':''}">
     <div class="task-check ${t.done?'done':''}">${t.done?'<svg class="icon icon-sm"><use href="#i-check"/></svg>':''}</div>
     <div class="task-time">${timeStr}</div>
-    <div class="task-body">
-      <div class="task-title">${escapeHtml(t.title)}</div>
-      <div class="task-meta">${chunkStr}${actualStr}</div>
-    </div>
+    <div class="task-body"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${chunkStr}${actualStr}</div></div>
   </div>`;
 }
 
-/* ============ ROUTINES TAB ============ */
+/* ============ ROUTINES ============ */
 function renderRoutines() {
   const list = document.getElementById("routineList");
-  if (state.routines.length === 0) {
-    list.innerHTML = `<div class="empty">No routines yet.<div class="empty-sub">Add daily things like meals, workouts, or recurring tasks.</div></div>`;
-    return;
-  }
+  if (state.routines.length === 0) { list.innerHTML = `<div class="empty">No routines yet.<div class="empty-sub">Add daily things like meals, workouts, or recurring tasks.</div></div>`; return; }
   list.innerHTML = state.routines.map(r => {
     const days = (r.days || []).slice().sort();
     const dayLabels = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const dayStr = days.length === 7 ? "Every day" : days.length === 5 && days.join(",")==="1,2,3,4,5" ? "Weekdays" : days.map(d => dayLabels[d]).join(", ");
     const timeStr = r.time ? format12Short(r.time) : "anytime";
     const chunkStr = (r.chunk || 30) >= 60 ? `${(r.chunk/60).toFixed(r.chunk%60?1:0)}h` : `${r.chunk}m`;
-    const typeLabel = r.type === "meal" ? "meal" : r.type === "appt" ? "appt" : r.type === "fixed" ? "fixed" : "task";
+    const typeLabel = r.type === "meal" ? "meal" : r.type === "appt" ? "appt" : r.type === "fixed" ? "block" : "task";
     return `<div class="task" onclick="editRoutine('${r.id}')">
       <div style="width:18px"></div>
       <div class="task-time">${timeStr}</div>
-      <div class="task-body">
-        <div class="task-title">${escapeHtml(r.title)}</div>
-        <div class="task-meta">${chunkStr} · ${dayStr} · ${typeLabel}</div>
-      </div>
-      <div class="task-actions">
-        <button class="icon-btn danger" onclick="event.stopPropagation(); deleteRoutine('${r.id}')"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>
-      </div>
+      <div class="task-body"><div class="task-title">${escapeHtml(r.title)}</div><div class="task-meta">${chunkStr} · ${dayStr} · ${typeLabel}</div></div>
+      <div class="task-actions"><button class="icon-btn danger" onclick="event.stopPropagation(); deleteRoutine('${r.id}')"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button></div>
     </div>`;
   }).join("");
 }
@@ -1180,161 +1019,83 @@ function editRoutine(id) {
   if (!r) return;
   openTaskModal(r, r.type || "task", true);
 }
-let _editingIsRoutine = false;
 function openTaskModal(t, type, isRoutine = false) {
   _editingIsRoutine = isRoutine;
-  editing = {
-    id: t ? t.id : null,
-    type: t ? (t.type || "task") : type,
-    chunk: t ? (t.chunk || 30) : 30,
-    days: t && t.days ? [...t.days] : [],
-  };
+  editing = { id: t ? t.id : null, type: t ? (t.type || "task") : type, chunk: t ? (t.chunk || 30) : 30, days: t && t.days ? [...t.days] : [] };
   document.getElementById("taskModalTitle").textContent = t ? (isRoutine ? "Edit Routine" : "Edit Task") : (isRoutine ? "New Routine" : "New Task");
   document.getElementById("taskModalSub").textContent = isRoutine ? "Repeats on the days you select." : "What needs to happen today?";
   document.getElementById("t_title").value = t ? t.title : "";
   document.getElementById("t_time").value = t ? (t.time || "") : "";
   setType(editing.type);
   setChunk(editing.chunk);
-  document.querySelectorAll(".day-pill").forEach(p => {
-    p.classList.toggle("active", editing.days.includes(+p.dataset.day));
-  });
+  document.querySelectorAll(".day-pill").forEach(p => { p.classList.toggle("active", editing.days.includes(+p.dataset.day)); });
   document.getElementById("deleteBtn").style.display = t ? "inline-flex" : "none";
-  document.getElementById("repeatRow").style.display = isRoutine ? "block" : "block";
   document.getElementById("taskModal").classList.add("show");
   setTimeout(() => document.getElementById("t_title").focus(), 100);
 }
 function closeTaskModal() { document.getElementById("taskModal").classList.remove("show"); }
-function setType(type) {
-  editing.type = type;
-  document.querySelectorAll(".type-btn").forEach(b => b.classList.toggle("active", b.dataset.type === type));
-}
-function setChunk(min) {
-  editing.chunk = min;
-  document.querySelectorAll("#taskModal .chunk-btn").forEach(b => b.classList.toggle("active", +b.dataset.chunk === min));
-}
-function toggleDay(d) {
-  if (editing.days.includes(d)) editing.days = editing.days.filter(x => x !== d);
-  else editing.days.push(d);
-  document.querySelectorAll(".day-pill").forEach(p => {
-    p.classList.toggle("active", editing.days.includes(+p.dataset.day));
-  });
-}
-function setDaysPreset(p) {
-  if (p === "weekday") editing.days = [1,2,3,4,5];
-  else if (p === "all") editing.days = [0,1,2,3,4,5,6];
-  else editing.days = [];
-  document.querySelectorAll(".day-pill").forEach(pp => {
-    pp.classList.toggle("active", editing.days.includes(+pp.dataset.day));
-  });
-}
+function setType(type) { editing.type = type; document.querySelectorAll(".type-btn").forEach(b => b.classList.toggle("active", b.dataset.type === type)); }
+function setChunk(min) { editing.chunk = min; document.querySelectorAll("#taskModal .chunk-btn").forEach(b => b.classList.toggle("active", +b.dataset.chunk === min)); }
+function toggleDay(d) { if (editing.days.includes(d)) editing.days = editing.days.filter(x => x !== d); else editing.days.push(d); document.querySelectorAll(".day-pill").forEach(p => { p.classList.toggle("active", editing.days.includes(+p.dataset.day)); }); }
+function setDaysPreset(p) { if (p === "weekday") editing.days = [1,2,3,4,5]; else if (p === "all") editing.days = [0,1,2,3,4,5,6]; else editing.days = []; document.querySelectorAll(".day-pill").forEach(pp => { pp.classList.toggle("active", editing.days.includes(+pp.dataset.day)); }); }
 function saveTask() {
   const title = document.getElementById("t_title").value.trim();
   if (!title) { toast("Title required"); return; }
   const time = document.getElementById("t_time").value || "";
   const isRoutine = _editingIsRoutine || (editing.days && editing.days.length > 0);
-
   if (isRoutine) {
-    // Save as routine
     const existing = editing.id ? state.routines.find(r => r.id === editing.id) : null;
-    if (existing) {
-      existing.title = title;
-      existing.type = editing.type;
-      existing.chunk = editing.chunk;
-      existing.time = time;
-      existing.days = editing.days;
-      existing.updatedAt = nowIso();
-    } else {
-      state.routines.push({
-        id: editing.id || newId(),
-        title, type: editing.type, chunk: editing.chunk, time,
-        days: editing.days.length ? editing.days : [0,1,2,3,4,5,6],
-        updatedAt: nowIso(),
-      });
-    }
+    if (existing) { existing.title = title; existing.type = editing.type; existing.chunk = editing.chunk; existing.time = time; existing.days = editing.days; existing.updatedAt = nowIso(); }
+    else { state.routines.push({ id: editing.id || newId(), title, type: editing.type, chunk: editing.chunk, time, days: editing.days.length ? editing.days : [0,1,2,3,4,5,6], updatedAt: nowIso() }); }
     toast("Routine saved");
   } else {
-    // One-off task for today
     const existing = editing.id ? state.tasks.find(t => t.id === editing.id) : null;
-    if (existing) {
-      existing.title = title;
-      existing.type = editing.type;
-      existing.chunk = editing.chunk;
-      existing.time = time;
-      existing.updatedAt = nowIso();
-    } else {
-      state.tasks.push({
-        id: editing.id || newId(),
-        title, type: editing.type, chunk: editing.chunk, time,
-        date: todayIso(), done: false,
-        updatedAt: nowIso(),
-      });
-    }
+    if (existing) { existing.title = title; existing.type = editing.type; existing.chunk = editing.chunk; existing.time = time; existing.updatedAt = nowIso(); }
+    else { state.tasks.push({ id: editing.id || newId(), title, type: editing.type, chunk: editing.chunk, time, date: todayIso(), done: false, updatedAt: nowIso() }); }
     toast("Task saved");
   }
-  saveLocal(); queueSync(); render();
-  closeTaskModal();
+  saveLocal(); queueSync(); render(); closeTaskModal();
 }
 function deleteEditingTask() {
   if (!editing.id) { closeTaskModal(); return; }
   if (!confirm("Delete this?")) return;
-  if (_editingIsRoutine) {
-    state.routines = state.routines.filter(r => r.id !== editing.id);
-  } else {
-    state.tasks = state.tasks.filter(t => t.id !== editing.id);
-  }
-  saveLocal(); queueSync(); render();
-  closeTaskModal();
-  toast("Deleted");
+  if (_editingIsRoutine) state.routines = state.routines.filter(r => r.id !== editing.id);
+  else state.tasks = state.tasks.filter(t => t.id !== editing.id);
+  saveLocal(); queueSync(); render(); closeTaskModal(); toast("Deleted");
 }
 function deleteTask(id) {
   if (!confirm("Delete this task?")) return;
-  // If routine-derived, store a "skipped" instance so it doesn't reappear today
   if (id.startsWith("rt:")) {
     const existing = state.tasks.find(t => t.id === id);
     if (existing) existing.skipped = true;
-    else {
-      const today = getTodaysTasks();
-      const t = today.find(x => x.id === id);
-      if (t) { state.tasks.push({ ...t, skipped: true, updatedAt: nowIso() }); }
-    }
-  } else {
-    state.tasks = state.tasks.filter(t => t.id !== id);
-  }
-  saveLocal(); queueSync(); render();
-  toast("Removed");
+    else { const today = getTodaysTasks(); const t = today.find(x => x.id === id); if (t) { state.tasks.push({ ...t, skipped: true, updatedAt: nowIso() }); } }
+  } else { state.tasks = state.tasks.filter(t => t.id !== id); }
+  saveLocal(); queueSync(); render(); toast("Removed");
 }
 function deleteRoutine(id) {
   if (!confirm("Delete this routine? Today's instance will stay if already created.")) return;
   state.routines = state.routines.filter(r => r.id !== id);
-  saveLocal(); queueSync(); render();
-  toast("Routine deleted");
+  saveLocal(); queueSync(); render(); toast("Routine deleted");
 }
 
-/* ============ TOGGLE DONE & ACTUAL DURATION ============ */
+/* ============ TOGGLE DONE & DURATION ============ */
 function toggleDone(id) {
   let t = ensureRoutineInstance(id);
   if (!t) {
-    // For routine-derived tasks not yet in state, materialize them first
     const today = getTodaysTasks();
     t = today.find(x => x.id === id);
     if (!t) return;
     if (!state.tasks.find(x => x.id === t.id)) state.tasks.push(t);
   }
-  
-  // If currently done → uncheck immediately, no modal
+  // If already done, uncheck immediately, no modal
   if (t.done) {
-    t.done = false;
-    t.doneAt = null;
-    t.actualMin = null;
+    t.done = false; t.doneAt = null; t.actualMin = null;
     t.updatedAt = nowIso();
-    saveLocal();
-    queueSync();
-    render();
+    saveLocal(); queueSync(); render();
     toast("Unchecked");
     return;
   }
-  
-  // Currently undone → open duration modal
+  // Mark done — open duration prompt
   durationContext = { id, estimate: t.chunk || 30, actual: t.chunk || 30 };
   document.getElementById("estimateShow").textContent = "(you guessed " + (t.chunk >= 60 ? (t.chunk/60).toFixed(t.chunk%60?1:0)+"h" : t.chunk+"m") + ")";
   document.querySelectorAll("#durationModal .chunk-btn").forEach(b => b.classList.toggle("active", +b.dataset.actual === durationContext.actual));
@@ -1346,28 +1107,22 @@ function setActual(min) {
 }
 function saveDuration() {
   const t = ensureRoutineInstance(durationContext.id);
-  if (!t) return;
-  t.done = true; t.doneAt = nowIso(); t.actualMin = durationContext.actual;
-  t.updatedAt = nowIso();
-  // Make sure it's persisted in state.tasks
+  if (!t) { closeDurationModal(); return; }
+  t.done = true; t.doneAt = nowIso(); t.actualMin = durationContext.actual; t.updatedAt = nowIso();
   if (!state.tasks.find(x => x.id === t.id)) state.tasks.push(t);
-  saveLocal(); queueSync(); render();
-  closeDurationModal();
-  toast("Marked done");
+  saveLocal(); queueSync(); render(); closeDurationModal(); toast("Marked done");
 }
 function skipDuration() {
+  // Mark done without logging duration
   const t = ensureRoutineInstance(durationContext.id);
-  if (!t) return;
-  t.done = true; t.doneAt = nowIso();
-  t.updatedAt = nowIso();
+  if (!t) { closeDurationModal(); return; }
+  t.done = true; t.doneAt = nowIso(); t.updatedAt = nowIso();
   if (!state.tasks.find(x => x.id === t.id)) state.tasks.push(t);
-  saveLocal(); queueSync(); render();
-  closeDurationModal();
-  toast("Marked done");
+  saveLocal(); queueSync(); render(); closeDurationModal(); toast("Marked done");
 }
 function cancelDuration() {
-  // User accidentally clicked the checkbox — don't mark done
-  document.getElementById("durationModal").classList.remove("show");
+  // Accidentally clicked — don't mark done at all
+  closeDurationModal();
 }
 function closeDurationModal() { document.getElementById("durationModal").classList.remove("show"); }
 
@@ -1385,14 +1140,11 @@ function rescheduleAction(action) {
   const id = rescheduleTargetId;
   const t = ensureRoutineInstance(id) || getTodaysTasks().find(x => x.id === id);
   if (!t) { closeRescheduleModal(); return; }
-  // Persist
   if (!state.tasks.find(x => x.id === t.id)) state.tasks.push(t);
   const stored = state.tasks.find(x => x.id === t.id);
-
   if (action === "later") {
-    // Find next free 30-min slot after now
     const now = nowMin();
-    const candidate = Math.ceil(now / 15) * 15 + 15; // 15-min buffer
+    const candidate = Math.ceil(now / 15) * 15 + 15;
     stored.time = minToTime(candidate);
     stored.updatedAt = nowIso();
     toast("Moved to " + format12(stored.time));
@@ -1402,15 +1154,13 @@ function rescheduleAction(action) {
     stored.updatedAt = nowIso();
     toast("Pushed to tomorrow");
   } else if (action === "skip") {
-    stored.skipped = true;
-    stored.updatedAt = nowIso();
+    stored.skipped = true; stored.updatedAt = nowIso();
     toast("Skipped");
   }
-  saveLocal(); queueSync(); render();
-  closeRescheduleModal();
+  saveLocal(); queueSync(); render(); closeRescheduleModal();
 }
 
-/* ============ DAY HOURS / SETTINGS ============ */
+/* ============ SETTINGS ============ */
 function saveDayHours() {
   state.wakeTime = document.getElementById("wakeTime").value || "07:00";
   state.bedTime = document.getElementById("bedTime").value || "22:30";
@@ -1435,24 +1185,13 @@ function switchTab(name) {
 }
 
 /* ============ UTILS ============ */
-function escapeHtml(s) {
-  return String(s || "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-}
+function escapeHtml(s) { return String(s || "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
 let toastTimer = null;
-function toast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
-}
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2000); }
 
 /* ============ RENDER ============ */
 function render() {
-  renderClock();
-  renderBeaker();
-  renderAgenda();
-  renderSummary();
-  // history/routines re-render only if visible
+  renderClock(); renderBeaker(); renderAgenda(); renderSummary();
   if (document.getElementById("tab-history").style.display !== "none") renderHistory();
   if (document.getElementById("tab-routines").style.display !== "none") renderRoutines();
 }
@@ -1465,7 +1204,6 @@ function init() {
   if (state.syncUrl) { updateSyncStatus("connected", "Connected"); syncNow(true); }
   else { updateSyncStatus("", "Local only"); }
   render();
-  // Update clock every 30 seconds
   setInterval(() => render(), 30000);
 }
 init();
