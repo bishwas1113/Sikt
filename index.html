@@ -572,10 +572,12 @@
       </div>
     </div>
     <div style="display:flex; justify-content: space-between; margin-top: 14px;">
-      <button class="btn" onclick="skipDuration()">Skip</button>
-      <button class="btn btn-primary" onclick="saveDuration()">Save</button>
-    </div>
+      <button class="btn" onclick="cancelDuration()">Cancel</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn" onclick="skipDuration()">Skip log</button>
+        <button class="btn btn-primary" onclick="saveDuration()">Save</button>
   </div>
+</div>
 </div>
 
 <!-- Settings Modal -->
@@ -1311,14 +1313,28 @@ function deleteRoutine(id) {
 /* ============ TOGGLE DONE & ACTUAL DURATION ============ */
 function toggleDone(id) {
   let t = ensureRoutineInstance(id);
-  if (!t) return;
+  if (!t) {
+    // For routine-derived tasks not yet in state, materialize them first
+    const today = getTodaysTasks();
+    t = today.find(x => x.id === id);
+    if (!t) return;
+    if (!state.tasks.find(x => x.id === t.id)) state.tasks.push(t);
+  }
+  
+  // If currently done → uncheck immediately, no modal
   if (t.done) {
-    t.done = false; t.doneAt = null; t.actualMin = null;
+    t.done = false;
+    t.doneAt = null;
+    t.actualMin = null;
     t.updatedAt = nowIso();
-    saveLocal(); queueSync(); render();
+    saveLocal();
+    queueSync();
+    render();
+    toast("Unchecked");
     return;
   }
-  // Marking done — ask for actual duration
+  
+  // Currently undone → open duration modal
   durationContext = { id, estimate: t.chunk || 30, actual: t.chunk || 30 };
   document.getElementById("estimateShow").textContent = "(you guessed " + (t.chunk >= 60 ? (t.chunk/60).toFixed(t.chunk%60?1:0)+"h" : t.chunk+"m") + ")";
   document.querySelectorAll("#durationModal .chunk-btn").forEach(b => b.classList.toggle("active", +b.dataset.actual === durationContext.actual));
@@ -1348,6 +1364,10 @@ function skipDuration() {
   saveLocal(); queueSync(); render();
   closeDurationModal();
   toast("Marked done");
+}
+function cancelDuration() {
+  // User accidentally clicked the checkbox — don't mark done
+  document.getElementById("durationModal").classList.remove("show");
 }
 function closeDurationModal() { document.getElementById("durationModal").classList.remove("show"); }
 
