@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="shortcut icon" type="image/png" href="icon.png">
 <title>Day Radar</title>
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -109,6 +111,8 @@
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand-icon { width: 36px; height: 36px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--accent); }
   .brand-icon .icon { width: 18px; height: 18px; }
+  .brand-icon-img { background: transparent; border: none; padding: 0; overflow: hidden; }
+  .brand-icon-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); }
   .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
   .brand-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
   .brand-date { font-size: 11px; color: var(--text-2); }
