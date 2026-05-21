@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sikt</title>
+<title>Day Radar</title>
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Sikt">
+<meta name="apple-mobile-web-app-title" content="Day Radar">
 <meta name="theme-color" content="#4a5d7e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -112,10 +112,7 @@
     z-index: 5;
   }
   
-  /* Removes any old spout */
-  .beaker::after {
-    display: none;
-  }
+  .beaker::after { display: none; }
 
   .beaker-inner {
     position: relative; 
@@ -130,7 +127,6 @@
     );
   }
 
-  /* Your crucial task liquid styling */
   .beaker-segment {
     position: absolute; left: 0; right: 0;
     overflow: hidden;
@@ -141,18 +137,17 @@
     transition: opacity 0.2s;
   }
 
-  /* The new embedded ruler styles */
-  
+  /* Embedded ruler */
   .ruler-overlay { 
     position: absolute; 
     left: 0; 
     top: 0; 
-    width: 100%; /* Spans full width so clipping works */
+    width: 100%;
     height: 100%; 
     pointer-events: none; 
     z-index: 10; 
-    overflow: hidden; /* Clips the 7am label inside the glass */
-    border-radius: 0 0 23px 23px; /* Matches the beaker glass curve */
+    overflow: hidden;
+    border-radius: 0 0 23px 23px;
   }
   
   .ruler-tick {
@@ -161,8 +156,6 @@
     display: flex; 
     align-items: center; 
     gap: 6px;
-    /* This magic line pushes the element down by 50% of its own height, 
-       ensuring the line sits exactly on the mathematical coordinate! */
     transform: translateY(50%); 
   }
   
@@ -180,7 +173,6 @@
     font-weight: 600;
     line-height: 1; 
   }
-
   [data-theme="sumi"] .beaker-segment { border-top-color: rgba(255,255,255,0.04); }
   .seg-elapsed-fill { background: var(--elapsed-fill); border-top: none; }
   .seg-fixed { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
@@ -388,8 +380,7 @@
     .header { gap: 8px; }
     .theme-grid { grid-template-columns: repeat(3, 1fr); }
     .task-check { width: 22px; height: 22px; }
-
-}
+  }
 </style>
 </head>
 <body>
@@ -427,9 +418,9 @@
 <div class="app">
   <div class="header">
     <div class="brand">
-      <div class="brand-icon brand-icon-img"><img src="icon.png" alt="Sikt" /></div>
+      <div class="brand-icon brand-icon-img"><img src="icon.png" alt="Day Radar" /></div>
       <div class="brand-text">
-        <div class="brand-title display">Sikt</div>
+        <div class="brand-title display">Day Radar</div>
         <div class="brand-date" id="brandDate">—</div>
       </div>
     </div>
@@ -470,11 +461,8 @@
               <div class="overflow-light" id="overflowLight" style="height:0%"></div>
               <div class="overflow-dark" id="overflowDark" style="height:0%"></div>
             </div>
-            
             <div class="beaker-inner" id="beakerInner"></div>
-            
             <div id="innerRuler" class="ruler-overlay"></div>
-            
             <div class="now-line" id="nowLine" style="bottom: 0%"></div>
           </div>
         </div>
@@ -1126,7 +1114,7 @@ function dayLength() {
 /* Inverted: 0 = bottom (wake), 100 = top (bedtime + 1hr visual buffer) */
 function pctFromBottom(min) {
   const wake = timeToMin(state.wakeTime);
-  const visualLen = dayLength() + 60; // Adds 1 hour to the top of the glass visually
+  const visualLen = dayLength() + 60; // 1hr buffer above bedtime
   let v = min - wake;
   if (v < 0) v = 0;
   if (v > visualLen) v = visualLen;
@@ -1145,12 +1133,31 @@ function renderClock() {
   document.getElementById("brandDate").textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 
-/* ============ RENDER: BEAKER AND TICKS ============ */
-function renderBeaker() {
+/* ============ RENDER: BEAKER TICKS (embedded ruler) ============ */
+function renderTicks() {
   const wake = timeToMin(state.wakeTime);
   const bed = timeToMin(state.bedTime); 
   const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
+  const ruler = document.getElementById("innerRuler");
+  if (!ruler) return;
+  let html = "";
+  const firstHour = Math.ceil(wake / 60) * 60;
+  for (let m = firstHour; m <= bedAdj; m += 60) {
+    const pct = pctFromBottom(m);
+    const hourOfDay = (Math.floor(m / 60)) % 24;
+    const display = hourOfDay === 0 ? 12 : (hourOfDay > 12 ? hourOfDay - 12 : hourOfDay);
+    const ampm = hourOfDay < 12 ? "a" : "p";
+    html += `<div class="ruler-tick" style="bottom: ${pct}%"><span class="ruler-line"></span><span class="ruler-label">${display}${ampm}</span></div>`;
+  }
+  ruler.innerHTML = html;
+}
+
+/* ============ RENDER: BEAKER ============ */
+function renderBeaker() {
+  const wake = timeToMin(state.wakeTime);
+  const bed = timeToMin(state.bedTime); const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
   const now = nowMin();
+  const len = dayLength();
 
   const today = tasksForDate(todayIso());
   const timedBlocks = today
@@ -1161,13 +1168,13 @@ function renderBeaker() {
   const inner = document.getElementById("beakerInner");
   let html = "";
 
-  // Elapsed fill stops at actual bedtime
+  // Elapsed fill: from bottom (wake) up to NOW
   if (now > wake) {
     const elapsedPct = pctFromBottom(Math.min(now, bedAdj));
     html += `<div class="beaker-segment seg-elapsed-fill" style="bottom:0%; height:${elapsedPct}%; z-index:0; border-top:none"></div>`;
   }
 
-  // Timed blocks stop at actual bedtime
+  // Timed blocks
   timedBlocks.forEach(b => {
     if (b.end <= wake || b.start >= bedAdj) return;
     const bottom = pctFromBottom(Math.max(b.start, wake));
@@ -1188,16 +1195,16 @@ function renderBeaker() {
 
   inner.innerHTML = html;
 
+  // NOW line (positioned from bottom, can float into buffer if past bedtime)
   const nowPct = pctFromBottom(now);
   const nl = document.getElementById("nowLine");
-  // The NOW line can float up into the buffer if you are awake past bedtime
   if (now < wake || now > (bedAdj + 60)) { nl.style.display = "none"; }
   else { nl.style.display = "block"; nl.style.bottom = nowPct + "%"; nl.style.top = "auto"; }
 
-  // Overflow math remains pure (uses bedAdj)
+  // Overflow: calculate projection
   const planNeeded = today.filter(t => !t.done).reduce((s,t) => s + (t.chunk || 30), 0);
   const projectedEndMin = (now < wake ? wake : now) + planNeeded;
-  const overshoot = projectedEndMin - bedAdj;
+  const overshoot = projectedEndMin - bedAdj;  // minutes past bedtime
 
   const ovZone = document.getElementById("overflowZone");
   const ovLight = document.getElementById("overflowLight");
@@ -1208,40 +1215,14 @@ function renderBeaker() {
     ovZone.style.display = "none";
   } else {
     ovZone.style.display = "block";
+    // Light red: up to 60min overshoot maps to up to 50% of the 50px zone
+    // Dark red: 60+min overshoot fills more
     const lightHeight = Math.min(50, (Math.min(overshoot, 60) / 60) * 50);
     const darkHeight = overshoot > 60 ? Math.min(50, ((overshoot - 60) / 60) * 50) : 0;
     ovLight.style.height = lightHeight + "px";
     ovDark.style.height = darkHeight + "px";
     ovLabel.textContent = `↑ ${format12(minToTime(projectedEndMin % (24*60)))}`;
   }
-}
-
-function renderTicks() {
-  const wake = timeToMin(state.wakeTime);
-  const bed = timeToMin(state.bedTime); 
-  const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
-  
-  const ruler = document.getElementById("innerRuler");
-  if (!ruler) return;
-  
-  let html = "";
-  const firstHour = Math.ceil(wake / 60) * 60;
-  
-  // Loop up to actual bedtime. No labels drawn in the 1-hour top buffer space.
-  for (let m = firstHour; m <= bedAdj; m += 60) {
-    const pct = pctFromBottom(m);
-    const hourOfDay = (Math.floor(m / 60)) % 24;
-    const display = hourOfDay === 0 ? 12 : (hourOfDay > 12 ? hourOfDay - 12 : hourOfDay);
-    const ampm = hourOfDay < 12 ? "a" : "p";
-    
-    html += `
-      <div class="ruler-tick" style="bottom: ${pct}%">
-        <span class="ruler-line"></span>
-        <span class="ruler-label">${display}${ampm}</span>
-      </div>`;
-  }
-  
-  ruler.innerHTML = html;
 }
 
 /* ============ RENDER: STATUS BAR ============ */
@@ -1679,7 +1660,23 @@ function rescheduleAction(action) {
   if (!t) { closeRescheduleModal(); return; }
   if (action === "later") {
     const now = nowMin();
-    const candidate = Math.ceil(now / 15) * 15 + 15;
+    const chunk = t.chunk || 30;
+    // Build list of timed blocks for today (excluding this task itself)
+    const todayTasks = tasksForDate(todayIso())
+      .filter(x => x.id !== t.id && x.time && !x.done)
+      .map(x => ({ start: timeToMin(x.time), end: timeToMin(x.time) + (x.chunk || 30) }))
+      .sort((a, b) => a.start - b.start);
+    // Start from next 15-min boundary after now
+    let candidate = Math.ceil(now / 15) * 15 + 15;
+    // Walk forward until the candidate slot [candidate, candidate+chunk) is clear
+    let safetyLimit = 0;
+    while (safetyLimit++ < 96) { // max 24h of 15-min steps
+      const end = candidate + chunk;
+      const collision = todayTasks.find(b => candidate < b.end && end > b.start);
+      if (!collision) break;
+      // Jump to end of the colliding block, snapped to next 15-min boundary
+      candidate = Math.ceil(collision.end / 15) * 15;
+    }
     t.time = minToTime(candidate);
     t.updatedAt = nowIso();
     toast("Moved to " + format12(t.time));
@@ -2241,9 +2238,14 @@ function init() {
   const savedTheme = localStorage.getItem("today_theme") || "shoji";
   document.documentElement.setAttribute("data-theme", savedTheme);
   loadLocal();
+  pomoLoadPersistent();
   render();
   handleStartupSync();
   setInterval(() => render(), 30000);
+  // If a pomo session was running when page closed, restart the ticker
+  if (pomoSession.status === "running") {
+    pomoStartTicker();
+  }
 }
 init();
 </script>
