@@ -27,13 +27,14 @@ As someone who suffers from time blindness and struggles with executive function
 <img width="582" height="218" alt="image" src="https://github.com/user-attachments/assets/a0780609-8525-46d0-ac32-24e88323fc02" />
    - Delete the entire content of the execution log
 <img width="1307" height="347" alt="image" src="https://github.com/user-attachments/assets/90889cc7-9780-4ec7-ba15-a387bc2f26e1" />
+
    - Copy and paste the code found in the github named "Apps Script code" into this space and Save
    - Press **Deploy >**  **New Deployment**
    - Under **Select Type**, select **Web App**
    - Add the following:
-       **Description**- "Sikt Deployment"
-       **Execute as**- "Me"
-       **Who has access** - "Anyone" - **Dont worry- as long as you dont share the link to your excel sheet explicitly with anyone, it will stay private**
+      **Description**- "Sikt Deployment"
+     **Execute as**- "Me"
+     **Who has access** - "Anyone" - **Dont worry- as long as you dont share the link to your excel sheet explicitly with anyone, it will stay private**
    - Press **Deploy** then Copy the link under "Web App"
    <img width="743" height="519" alt="image" src="https://github.com/user-attachments/assets/26e4fd62-afd9-454c-bc3b-1301199e8258" />
    - On the Sikt app, click on **Settings** then paste the link copied above under **APPS SCRIPT WEB APP URL** field. Press Connect then close
