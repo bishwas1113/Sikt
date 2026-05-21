@@ -51,4 +51,3 @@ As someone who suffers from time blindness and struggles with executive function
 * **Design:** Japandi-inspired essentialism.
 
 ---
-*Built with precision for the disciplined mind.*
