@@ -16,7 +16,7 @@ In an era of digital noise, productivity isn't about doing more—it’s about h
 * **Flexible Theming:** Choose from five curated Japandi-inspired themes: *Shoji, Sumi, Suna, Wabi,* or *Asa*.
 
 ## Why I Built This
-Managing the rigors of a PhD and the transition to professional consulting required a system that functioned like a laboratory tool rather than a distraction. **Sikt** brings analytical rigor to personal time management, allowing for the same precision I apply to professional bioinformatics and data strategy.
+As someone who suffers from time blindness and struggles with executive function, I wanted a way to visualize how much time i have left in the day for the remainder of tasks, both as a way to organize and to prioritize. 
 
 ## Getting Started
 1. **Syncing:** Add your Google Apps Script Web App URL in the settings panel to enable real-time data backup to Google Sheets.
