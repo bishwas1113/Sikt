@@ -40,6 +40,8 @@ As someone who suffers from time blindness and struggles with executive function
    <img width="743" height="519" alt="image" src="https://github.com/user-attachments/assets/26e4fd62-afd9-454c-bc3b-1301199e8258" />
    
    - On the Sikt app, click on **Settings** then paste the link copied above under **APPS SCRIPT WEB APP URL** field. Press Connect then close
+<img width="842" height="687" alt="image" src="https://github.com/user-attachments/assets/0e4298b9-1b28-4325-aa54-c0aa8b459a59" />
+
    - The app should sync data to the Google sheets now
 
 
