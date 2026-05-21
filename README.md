@@ -29,7 +29,7 @@ As someone who suffers from time blindness and struggles with executive function
    - Delete the entire content of the execution log
 <img width="1307" height="347" alt="image" src="https://github.com/user-attachments/assets/90889cc7-9780-4ec7-ba15-a387bc2f26e1" />
 
-   - Copy and paste the code found in the github named "Apps Script code" into this space and Save
+   - Copy and paste the code found in the github named "Apps_Script_code.gs" into this space and Save
    - Press **Deploy >**  **New Deployment**
    - Under **Select Type**, select **Web App**
    - Add the following:
