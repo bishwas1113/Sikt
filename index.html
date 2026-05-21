@@ -638,6 +638,7 @@ function newId() { return "t_" + Date.now() + "_" + Math.random().toString(36).s
 function newRoutineId() { return "r_" + Date.now() + "_" + Math.random().toString(36).slice(2,7); }
 
 /* ============ STORAGE ============ */
+
 function loadLocal() {
   try {
     const raw = localStorage.getItem("today_v2");
@@ -661,8 +662,11 @@ function loadLocal() {
       }
     }
     state.syncUrl = localStorage.getItem("today_syncurl") || "";
+    // NEW: hydrated flag — true if this device has ever successfully pulled from the sheet
+    state.hydrated = localStorage.getItem("today_v2_hydrated") === "true";
   } catch (e) { console.error(e); }
 }
+
 function saveLocal() {
   try {
     localStorage.setItem("today_v2", JSON.stringify({
@@ -727,14 +731,53 @@ function updateSyncStatus(status, text) {
   document.getElementById("syncDot").className = "sync-dot " + (status || "");
   document.getElementById("syncText").textContent = text;
 }
+// Pull-once on session start. Server is source of truth at this moment;
+// local state gets overwritten. After this completes successfully, the
+// "hydrated" flag is set, which gates all future pushes.
+async function pullFromServer() {
+  if (!state.syncUrl) { updateSyncStatus("", "Local only"); return; }
+  updateSyncStatus("syncing", "Loading…");
+  try {
+    const res = await fetch(state.syncUrl, {
+      method: "POST",
+      body: JSON.stringify({ action: "read" }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Read failed");
+    if (data.records) {
+      state.tasks = data.records.filter(r => r._kind === "task").map(r => { const { _kind, ...rest } = r; return rest; });
+      state.routines = data.records.filter(r => r._kind === "routine").map(r => { const { _kind, ...rest } = r; return { ...rest, id: rest.id.replace(/^r:/, "") }; });
+      if (data.settings) {
+        if (data.settings.wakeTime) state.wakeTime = data.settings.wakeTime;
+        if (data.settings.bedTime) state.bedTime = data.settings.bedTime;
+      }
+      saveLocal();
+      render();
+    }
+    // Mark hydrated — pushes are now allowed
+    state.hydrated = true;
+    localStorage.setItem("today_v2_hydrated", "true");
+    updateSyncStatus("connected", "Synced • " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
+  } catch (e) {
+    console.error(e);
+    updateSyncStatus("error", "Offline — using local");
+    // Do NOT set hydrated. If this device has never pulled successfully,
+    // pushes remain blocked to prevent overwriting the sheet with stale/empty local state.
+  }
+}
 async function syncNow(silent = false) {
   if (!state.syncUrl) { if (!silent) toast("No sync URL set"); return; }
+
+  // SAFETY: don't push until we've successfully pulled at least once on this device.
+  // Prevents fresh-device-with-empty-localStorage from wiping the sheet.
+  if (!state.hydrated) {
+    updateSyncStatus("error", "Not synced yet — pull required");
+    if (!silent) toast("Can't push: try Pull from sheet first");
+    return;
+  }
+
   updateSyncStatus("syncing", "Syncing…");
   try {
-    const knownIds = [
-      ...state.tasks.map(t => t.id),
-      ...state.routines.map(r => "r:" + r.id),
-    ];
     const records = [
       ...state.tasks.map(t => ({ ...t, _kind: "task" })),
       ...state.routines.map(r => ({ ...r, _kind: "routine", id: "r:" + r.id })),
@@ -743,25 +786,15 @@ async function syncNow(silent = false) {
       method: "POST",
       body: JSON.stringify({
         action: "sync",
-        records, knownIds,
+        records,
         settings: { wakeTime: state.wakeTime, bedTime: state.bedTime },
-        deletedRoutineInstances: state.deletedRoutineInstances,
       }),
     });
     const data = await res.json();
-    if (data.records) {
-      state.tasks = data.records.filter(r => r._kind === "task").map(r => { const { _kind, ...rest } = r; return rest; });
-      state.routines = data.records.filter(r => r._kind === "routine").map(r => { const { _kind, ...rest } = r; return { ...rest, id: rest.id.replace(/^r:/, "") }; });
-      if (data.settings) {
-        if (data.settings.wakeTime) state.wakeTime = data.settings.wakeTime;
-        if (data.settings.bedTime) state.bedTime = data.settings.bedTime;
-      }
-      if (Array.isArray(data.deletedRoutineInstances)) {
-        state.deletedRoutineInstances = data.deletedRoutineInstances;
-      }
-      saveLocal();
-      render();
-    }
+    if (!data.ok) throw new Error(data.error || "Sync failed");
+    // NOTE: we deliberately do NOT overwrite local state with the server echo.
+    // In the "pull once, push always" model, local is the source of truth
+    // during a session. Server is just confirming what we sent.
     updateSyncStatus("connected", "Synced • " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
     if (!silent) toast("Synced");
   } catch (e) {
@@ -774,12 +807,22 @@ function saveSyncUrl() {
   const url = document.getElementById("syncUrl").value.trim();
   state.syncUrl = url;
   localStorage.setItem("today_syncurl", url);
-  if (url) { updateSyncStatus("connected", "Connected"); syncNow(); }
-  else { updateSyncStatus("", "Local only"); }
+  if (url) {
+    // Clear hydrated flag when connecting to a (possibly new) URL.
+    // Force a pull before any push is allowed.
+    state.hydrated = false;
+    localStorage.removeItem("today_v2_hydrated");
+    pullFromServer();
+  } else {
+    updateSyncStatus("", "Local only");
+  }
 }
 function disconnectSync() {
   state.syncUrl = "";
   localStorage.removeItem("today_syncurl");
+  // Also clear hydrated flag — next time we connect, we'll need to pull again.
+  state.hydrated = false;
+  localStorage.removeItem("today_v2_hydrated");
   document.getElementById("syncUrl").value = "";
   updateSyncStatus("", "Local only");
   toast("Disconnected");
@@ -1403,9 +1446,15 @@ function init() {
   const savedTheme = localStorage.getItem("today_theme") || "shoji";
   document.documentElement.setAttribute("data-theme", savedTheme);
   loadLocal();
-  if (state.syncUrl) { updateSyncStatus("connected", "Connected"); syncNow(true); }
-  else { updateSyncStatus("", "Local only"); }
   render();
+  // Pull from server on startup (only pushes are gated by hydrated flag).
+  // pullFromServer() handles its own status messages and silently falls back
+  // to local-only mode if the server is unreachable.
+  if (state.syncUrl) {
+    pullFromServer();
+  } else {
+    updateSyncStatus("", "Local only");
+  }
   setInterval(() => render(), 30000);
 }
 init();
