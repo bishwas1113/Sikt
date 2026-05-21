@@ -28,7 +28,7 @@ As someone who suffers from time blindness and struggles with executive function
    - Delete the entire content of the execution log,
 <img width="1307" height="347" alt="image" src="https://github.com/user-attachments/assets/90889cc7-9780-4ec7-ba15-a387bc2f26e1" />
    - Copy and paste the code found in the github named "Apps Script code" into this space and press save or Ctrl+S/Cmd+S
-   - Press **Deploy** > **New Deployment**
+   - Press **Deploy >**  **New Deployment**
    - Under **Select Type**, select **Web App**
    - Add the following:
        **Description**- "Sikt Deployment"
