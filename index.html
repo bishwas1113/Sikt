@@ -287,6 +287,45 @@
   .fab:active { transform: scale(0.95); }
   @media (min-width: 800px) { .fab { display: none; } }
 
+  /* ============ POMODORO ============ */
+  .pomo-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+  @media (max-width: 800px) { .pomo-wrap { grid-template-columns: 1fr; } }
+  .pomo-stage { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center; }
+  .pomo-phase-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-3); font-weight: 600; margin-bottom: 6px; }
+  .pomo-phase-name { font-family: "Fraunces", serif; font-size: 22px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 4px; }
+  .pomo-session-counter { font-size: 12px; color: var(--text-2); margin-bottom: 20px; font-variant-numeric: tabular-nums; }
+  .pomo-tomato { width: 220px; height: 220px; margin: 0 auto 18px; display: block; }
+  .pomo-tomato .tomato-outline { fill: none; stroke: var(--border-strong); stroke-width: 2.5; }
+  .pomo-tomato .tomato-leaf-outline { fill: none; stroke: var(--success); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .pomo-tomato .tomato-fill { transition: opacity 0.2s; }
+  .pomo-tomato .tomato-fill.focus { fill: var(--danger); }
+  .pomo-tomato .tomato-fill.break { fill: var(--success); }
+  .pomo-time { font-family: "Fraunces", serif; font-size: 44px; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: 6px; }
+  .pomo-remaining { font-size: 11px; color: var(--text-3); margin-bottom: 18px; }
+  .pomo-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .pomo-controls .btn-primary { min-width: 100px; justify-content: center; }
+  .pomo-dots { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+  .pomo-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); }
+  .pomo-dot.complete { background: var(--accent); border-color: var(--accent); }
+  .pomo-dot.current { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .pomo-side { display: flex; flex-direction: column; gap: 14px; }
+  .pomo-settings { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .pomo-settings-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .pomo-len-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .pomo-len-row:last-of-type { border-bottom: none; }
+  .pomo-len-label { font-size: 13px; color: var(--text); font-weight: 500; }
+  .pomo-len-toggle { display: flex; gap: 2px; background: var(--surface-2); padding: 2px; border-radius: 5px; border: 1px solid var(--border); }
+  .pomo-len-btn { padding: 4px 10px; border: none; background: transparent; color: var(--text-2); font-size: 11px; font-weight: 600; border-radius: 3px; cursor: pointer; font-family: inherit; font-variant-numeric: tabular-nums; transition: all 0.1s; }
+  .pomo-len-btn.active { background: var(--accent); color: var(--surface); }
+  .pomo-sound-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 4px; }
+  .pomo-sound-controls { display: flex; gap: 6px; align-items: center; }
+  .pomo-sound-select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--text); font-size: 12px; font-family: inherit; }
+  .pomo-mute-btn { width: 28px; height: 28px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--text-2); transition: all 0.15s; }
+  .pomo-mute-btn:hover { border-color: var(--border-strong); color: var(--text); }
+  .pomo-mute-btn.muted { background: var(--danger-soft); color: var(--danger); border-color: var(--danger-soft); }
+  .pomo-help { font-size: 11px; color: var(--text-3); line-height: 1.5; padding: 10px 14px; background: var(--bg); border-radius: var(--radius); }
+  .pomo-help b { color: var(--text-2); font-weight: 600; }
+
   @media (max-width: 720px) {
     .app { padding: 16px 12px 100px; }
     .beaker-card { position: static; }
@@ -319,6 +358,13 @@
     <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5M5 11l7 6 7-6M5 11V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6"/></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2a10 10 0 0 0 0 20 1.5 1.5 0 0 0 1.13-2.5 1.5 1.5 0 0 0 1.13-2.5h1.74a4 4 0 0 0 4-4 10 10 0 0 0-8-11z"/></symbol>
     <symbol id="i-sunglasses" viewBox="0 0 24 24"><path d="M3 8h7a2 2 0 0 1 2 2v2a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8z"/><path d="M14 8h7v2a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3v-2z"/><path d="M2 8h20M12 10v2"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8V4z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16"/></symbol>
+    <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4z"/><path d="M19 4v16"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1.5"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a4 4 0 0 1 0 7M19 5a8 8 0 0 1 0 14"/></symbol>
+    <symbol id="i-volume-off" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M22 9l-6 6M16 9l6 6"/></symbol>
+    <symbol id="i-tomato" viewBox="0 0 24 24"><path d="M12 21c-4.5 0-8-3-8-8 0-4 3-7 8-7s8 3 8 7c0 5-3.5 8-8 8z"/><path d="M8 6c1-2 2-3 4-3M14 4c1.5 0 2.5 1 3 2"/></symbol>
   </defs>
 </svg>
 
@@ -339,6 +385,7 @@
 
   <div class="tabs">
     <button class="tab active" data-tab="today" onclick="switchTab('today')"><svg class="icon icon-sm"><use href="#i-sun"/></svg>Today</button>
+    <button class="tab" data-tab="pomodoro" onclick="switchTab('pomodoro')"><svg class="icon icon-sm"><use href="#i-tomato"/></svg>Pomodoro</button>
     <button class="tab" data-tab="history" onclick="switchTab('history')"><svg class="icon icon-sm"><use href="#i-cal"/></svg>History</button>
     <button class="tab" data-tab="routines" onclick="switchTab('routines')"><svg class="icon icon-sm"><use href="#i-repeat"/></svg>Routines</button>
   </div>
@@ -392,6 +439,87 @@
             <button class="btn btn-sm btn-primary" onclick="openAddTask()"><svg class="icon icon-sm"><use href="#i-plus"/></svg>Add Task</button>
           </div>
           <div class="task-list" id="taskList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-pomodoro" class="tab-pane" style="display:none">
+    <div class="pomo-wrap">
+      <div class="pomo-stage">
+        <div class="pomo-phase-label" id="pomoPhaseLabel">Ready</div>
+        <div class="pomo-phase-name display" id="pomoPhaseName">Focus</div>
+        <div class="pomo-session-counter" id="pomoSessionCounter">Focus 1 of 4</div>
+
+        <svg class="pomo-tomato" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <!-- Tomato body shape, used both as visible outline and as clip for the fill -->
+            <clipPath id="pomoTomatoClip">
+              <path d="M50 92 C28 92 12 75 12 53 C12 35 28 23 50 23 C72 23 88 35 88 53 C88 75 72 92 50 92 Z" />
+            </clipPath>
+          </defs>
+          <!-- Fill rect, clipped to tomato shape; height controlled by JS -->
+          <rect id="pomoTomatoFill" class="tomato-fill focus" x="0" y="100" width="100" height="0" clip-path="url(#pomoTomatoClip)" />
+          <!-- Outline -->
+          <path class="tomato-outline" d="M50 92 C28 92 12 75 12 53 C12 35 28 23 50 23 C72 23 88 35 88 53 C88 75 72 92 50 92 Z" />
+          <!-- Leaves / sepals -->
+          <path class="tomato-leaf-outline" d="M50 23 L42 12 L50 18 L58 12 L50 23 M50 23 L36 16 M50 23 L64 16" />
+          <!-- Stem -->
+          <path class="tomato-leaf-outline" d="M50 18 L50 10" />
+        </svg>
+
+        <div class="pomo-time" id="pomoTimeDisplay">25:00</div>
+        <div class="pomo-remaining" id="pomoRemainingText">Ready to start</div>
+
+        <div class="pomo-controls">
+          <button class="btn btn-primary" id="pomoStartBtn" onclick="pomoStartPause()"><svg class="icon icon-sm"><use href="#i-play"/></svg><span id="pomoStartLabel">Start</span></button>
+          <button class="btn" onclick="pomoSkip()" title="Skip to next session"><svg class="icon icon-sm"><use href="#i-skip"/></svg>Skip</button>
+          <button class="btn" onclick="pomoRestartPhase()" title="Restart current session"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Restart</button>
+          <button class="btn btn-danger" onclick="pomoReset()" title="Reset Pomodoro back to Focus 1"><svg class="icon icon-sm"><use href="#i-stop"/></svg>Reset</button>
+        </div>
+
+        <div class="pomo-dots" id="pomoDots"></div>
+      </div>
+
+      <div class="pomo-side">
+        <div class="pomo-settings">
+          <div class="pomo-settings-title"><svg class="icon icon-sm"><use href="#i-clock"/></svg>Session Lengths</div>
+          <div class="pomo-len-row">
+            <span class="pomo-len-label">Focus</span>
+            <div class="pomo-len-toggle">
+              <button class="pomo-len-btn" data-pomo-focus="15" onclick="pomoSetLength('focus', 15)">15m</button>
+              <button class="pomo-len-btn" data-pomo-focus="25" onclick="pomoSetLength('focus', 25)">25m</button>
+            </div>
+          </div>
+          <div class="pomo-len-row">
+            <span class="pomo-len-label">Short break</span>
+            <div class="pomo-len-toggle">
+              <button class="pomo-len-btn" data-pomo-short="5" onclick="pomoSetLength('short', 5)">5m</button>
+              <button class="pomo-len-btn" data-pomo-short="10" onclick="pomoSetLength('short', 10)">10m</button>
+            </div>
+          </div>
+          <div class="pomo-len-row">
+            <span class="pomo-len-label">Long break</span>
+            <div class="pomo-len-toggle">
+              <button class="pomo-len-btn" data-pomo-long="30" onclick="pomoSetLength('long', 30)">30m</button>
+              <button class="pomo-len-btn" data-pomo-long="45" onclick="pomoSetLength('long', 45)">45m</button>
+            </div>
+          </div>
+          <div class="pomo-sound-row">
+            <span class="pomo-len-label">Sound</span>
+            <div class="pomo-sound-controls">
+              <select class="pomo-sound-select" id="pomoToneSelect" onchange="pomoSetTone(this.value)">
+                <option value="wood">Soft wood</option>
+                <option value="chime">Soft chime</option>
+                <option value="bell">Soft bell</option>
+              </select>
+              <button class="pomo-mute-btn" id="pomoMuteBtn" onclick="pomoToggleMute()" title="Mute"><svg class="icon icon-sm"><use href="#i-volume"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pomo-help">
+          <b>4 focus → 1 long break</b> per cycle. After the long break, the timer stops and waits for you to press Start. Changing a length recomputes the current session proportionally.
         </div>
       </div>
     </div>
@@ -609,6 +737,8 @@ let state = {
   // Track which "rt:routineId:date" IDs the user has explicitly deleted today
   // so they don't get re-materialized
   deletedRoutineInstances: [],
+  // Pomodoro settings (persisted to localStorage, not synced — device-local preference)
+  pomo: { focus: 25, short: 5, long: 30, tone: "wood", muted: false },
 };
 let editing = { id: null, type: "task", chunk: 30, days: [] };
 let _editingIsRoutine = false;
@@ -662,8 +792,11 @@ function loadLocal() {
       }
     }
     state.syncUrl = localStorage.getItem("today_syncurl") || "";
-    // NEW: hydrated flag — true if this device has ever successfully pulled from the sheet
+    // Safety flags
     state.hydrated = localStorage.getItem("today_v2_hydrated") === "true";
+    state.dirty = localStorage.getItem("today_v2_dirty") === "true";
+    const lsc = localStorage.getItem("today_v2_lastSyncedCount");
+    state.lastSyncedCount = lsc !== null ? parseInt(lsc, 10) : null;
   } catch (e) { console.error(e); }
 }
 
@@ -674,6 +807,10 @@ function saveLocal() {
       wakeTime: state.wakeTime, bedTime: state.bedTime,
       deletedRoutineInstances: state.deletedRoutineInstances,
     }));
+    // Every local save marks state as dirty (unsynced changes exist).
+    // Cleared only after a successful push.
+    state.dirty = true;
+    localStorage.setItem("today_v2_dirty", "true");
   } catch (e) { console.error(e); }
 }
 
@@ -734,6 +871,8 @@ function updateSyncStatus(status, text) {
 // Pull-once on session start. Server is source of truth at this moment;
 // local state gets overwritten. After this completes successfully, the
 // "hydrated" flag is set, which gates all future pushes.
+// Pull from server. Only safe when local has no unsynced changes.
+// Callers must check state.dirty before invoking — if dirty, push first.
 async function pullFromServer() {
   if (!state.syncUrl) { updateSyncStatus("", "Local only"); return; }
   updateSyncStatus("syncing", "Loading…");
@@ -751,29 +890,59 @@ async function pullFromServer() {
         if (data.settings.wakeTime) state.wakeTime = data.settings.wakeTime;
         if (data.settings.bedTime) state.bedTime = data.settings.bedTime;
       }
-      saveLocal();
+      // Persist pulled state to localStorage WITHOUT marking dirty.
+      // Inline write since saveLocal() would set dirty=true.
+      localStorage.setItem("today_v2", JSON.stringify({
+        tasks: state.tasks, routines: state.routines,
+        wakeTime: state.wakeTime, bedTime: state.bedTime,
+        deletedRoutineInstances: state.deletedRoutineInstances,
+      }));
+      // After successful pull, local matches server. Clear dirty, set baseline count.
+      state.dirty = false;
+      localStorage.setItem("today_v2_dirty", "false");
+      const count = state.tasks.length + state.routines.length;
+      state.lastSyncedCount = count;
+      localStorage.setItem("today_v2_lastSyncedCount", String(count));
       render();
     }
-    // Mark hydrated — pushes are now allowed
     state.hydrated = true;
     localStorage.setItem("today_v2_hydrated", "true");
     updateSyncStatus("connected", "Synced • " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
   } catch (e) {
     console.error(e);
     updateSyncStatus("error", "Offline — using local");
-    // Do NOT set hydrated. If this device has never pulled successfully,
-    // pushes remain blocked to prevent overwriting the sheet with stale/empty local state.
   }
 }
 async function syncNow(silent = false) {
   if (!state.syncUrl) { if (!silent) toast("No sync URL set"); return; }
 
-  // SAFETY: don't push until we've successfully pulled at least once on this device.
-  // Prevents fresh-device-with-empty-localStorage from wiping the sheet.
+  // SAFETY 1: don't push until we've successfully pulled at least once on this device.
   if (!state.hydrated) {
     updateSyncStatus("error", "Not synced yet — pull required");
     if (!silent) toast("Can't push: try Pull from sheet first");
     return;
+  }
+
+  // SAFETY 2: count sanity check — refuse to push if local is suspiciously smaller
+  // than last successful sync. Threshold: medium (drop of >5 records OR >20%).
+  const currentCount = state.tasks.length + state.routines.length;
+  if (state.lastSyncedCount !== null && state.lastSyncedCount > 0) {
+    const drop = state.lastSyncedCount - currentCount;
+    const dropPercent = drop / state.lastSyncedCount;
+    if (drop > 5 && dropPercent > 0.2) {
+      const ok = confirm(
+        "Warning: about to overwrite sheet (" + state.lastSyncedCount + " records) " +
+        "with only " + currentCount + " records.\n\n" +
+        "This usually means local data was lost or corrupted.\n\n" +
+        "Click OK to FORCE PUSH (overwrites sheet — old data still recoverable from backup tab).\n" +
+        "Click CANCEL to abort (recommended — then reload to pull fresh from sheet)."
+      );
+      if (!ok) {
+        updateSyncStatus("error", "Push aborted — possible data loss");
+        if (!silent) toast("Push aborted");
+        return;
+      }
+    }
   }
 
   updateSyncStatus("syncing", "Syncing…");
@@ -792,9 +961,11 @@ async function syncNow(silent = false) {
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || "Sync failed");
-    // NOTE: we deliberately do NOT overwrite local state with the server echo.
-    // In the "pull once, push always" model, local is the source of truth
-    // during a session. Server is just confirming what we sent.
+    // Push succeeded. Local matches sheet now. Clear dirty, update baseline count.
+    state.dirty = false;
+    localStorage.setItem("today_v2_dirty", "false");
+    state.lastSyncedCount = currentCount;
+    localStorage.setItem("today_v2_lastSyncedCount", String(currentCount));
     updateSyncStatus("connected", "Synced • " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
     if (!silent) toast("Synced");
   } catch (e) {
@@ -808,11 +979,11 @@ function saveSyncUrl() {
   state.syncUrl = url;
   localStorage.setItem("today_syncurl", url);
   if (url) {
-    // Clear hydrated flag when connecting to a (possibly new) URL.
-    // Force a pull before any push is allowed.
+    // New URL = fresh trust. Reset hydration but keep dirty state — if user
+    // has unsynced local work, the init flow will push it before pulling.
     state.hydrated = false;
     localStorage.removeItem("today_v2_hydrated");
-    pullFromServer();
+    handleStartupSync();
   } else {
     updateSyncStatus("", "Local only");
   }
@@ -820,9 +991,10 @@ function saveSyncUrl() {
 function disconnectSync() {
   state.syncUrl = "";
   localStorage.removeItem("today_syncurl");
-  // Also clear hydrated flag — next time we connect, we'll need to pull again.
   state.hydrated = false;
   localStorage.removeItem("today_v2_hydrated");
+  // Note: we do NOT clear dirty or lastSyncedCount. If user reconnects later,
+  // those flags still represent the truth about local state vs. sheet.
   document.getElementById("syncUrl").value = "";
   updateSyncStatus("", "Local only");
   toast("Disconnected");
@@ -832,6 +1004,52 @@ function queueSync() {
   if (!state.syncUrl) return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => syncNow(true), 1500);
+}
+
+// Decides what to do at session start (or sync reconnect) based on safety flags.
+// Implements the combined rule table:
+//   hydrated=F, dirty=F  → pull
+//   hydrated=F, dirty=T  → ask user (rare; fresh device with local work)
+//   hydrated=T, dirty=F  → pull
+//   hydrated=T, dirty=T  → push (recover offline work)
+async function handleStartupSync() {
+  if (!state.syncUrl) { updateSyncStatus("", "Local only"); return; }
+
+  if (state.dirty && state.hydrated) {
+    // Normal device with unsynced offline work — push it up.
+    await syncNow(true);
+    return;
+  }
+
+  if (state.dirty && !state.hydrated) {
+    // Fresh device that has local work but has never pulled. Rare. Ask user.
+    const choice = confirm(
+      "You have unsynced local data, but this device has never pulled from the sheet.\n\n" +
+      "Click OK to PULL from sheet (your local work will be saved as a backup in browser storage under 'today_v2_orphaned').\n" +
+      "Click CANCEL to PUSH local up (will overwrite sheet — only do this if you're sure the sheet is empty or outdated)."
+    );
+    if (choice) {
+      // Stash orphans before pull overwrites them
+      localStorage.setItem("today_v2_orphaned", JSON.stringify({
+        tasks: state.tasks,
+        routines: state.routines,
+        stashedAt: new Date().toISOString(),
+      }));
+      await pullFromServer();
+      toast("Local work stashed in today_v2_orphaned");
+    } else {
+      // User chose to push local up. Force hydration first by skipping the gate.
+      state.hydrated = true;
+      localStorage.setItem("today_v2_hydrated", "true");
+      // Also skip count sanity check for this one push (no baseline yet)
+      state.lastSyncedCount = null;
+      await syncNow(true);
+    }
+    return;
+  }
+
+  // Default: pull (hydrated=F dirty=F, or hydrated=T dirty=F)
+  await pullFromServer();
 }
 
 /* ============ TIME HELPERS ============ */
@@ -1118,7 +1336,6 @@ function renderHistory() {
     const d = new Date(iso + "T00:00:00");
     const dow = d.toLocaleDateString("en-US", { weekday: "short" });
     const dayNum = d.getDate();
-    // For past days, only show tasks that actually exist (don't materialize on the fly)
     const tasks = iso <= today
       ? state.tasks.filter(t => t.date === iso)
       : allTasksForDateIncludingSkipped(iso);
@@ -1152,7 +1369,6 @@ function navWeek(dir) { if (dir === 0) state.weekOffset = 0; else state.weekOffs
 function renderHistoryDay() {
   const iso = state.selectedHistoryDate;
   const today = todayIso();
-  // For past days, only show tasks that exist (don't materialize on the fly)
   const tasks = iso < today
     ? state.tasks.filter(t => t.date === iso)
     : allTasksForDateIncludingSkipped(iso);
@@ -1163,24 +1379,30 @@ function renderHistoryDay() {
   const pending = tasks.filter(t => !t.done && !t.skipped);
   const d = new Date(iso + "T00:00:00");
   const dateLabel = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const isToday = iso === today;
   view.innerHTML = `
     <div style="font-family:'Fraunces',serif; font-size: 17px; margin-bottom: 6px;">${dateLabel}</div>
     <div style="font-size:12px; color: var(--text-2); margin-bottom: 14px;">${done.length} done · ${skipped.length} skipped · ${pending.length} pending</div>
     ${done.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Done</div>` : ""}
-    <div class="task-list">${done.map(t => historyRow(t)).join("")}</div>
+    <div class="task-list">${done.map(t => historyRow(t, isToday)).join("")}</div>
     ${pending.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Pending</div>` : ""}
-    <div class="task-list">${pending.map(t => historyRow(t)).join("")}</div>
+    <div class="task-list">${pending.map(t => historyRow(t, isToday)).join("")}</div>
     ${skipped.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Skipped</div>` : ""}
-    <div class="task-list">${skipped.map(t => historyRow(t)).join("")}</div>`;
+    <div class="task-list">${skipped.map(t => historyRow(t, isToday)).join("")}</div>`;
 }
-function historyRow(t) {
+function historyRow(t, isToday) {
   const timeStr = t.time ? format12Short(t.time) : "anytime";
   const chunkStr = (t.chunk || 30) >= 60 ? `${(t.chunk/60).toFixed(t.chunk%60?1:0)}h` : `${t.chunk}m`;
   const actualStr = t.actualMin ? ` (actual ${t.actualMin>=60?(t.actualMin/60).toFixed(t.actualMin%60?1:0)+'h':t.actualMin+'m'})` : "";
+  // Show Undo button for today's done OR skipped tasks
+  const undoBtn = (isToday && (t.done || t.skipped))
+    ? `<div class="task-actions"><button class="icon-btn" onclick="event.stopPropagation(); toggleDone('${t.id}'); renderHistory();" title="Undo">↺</button></div>`
+    : "";
   return `<div class="task ${t.done?'done':''} ${t.skipped?'done':''}">
     <div class="task-check ${t.done?'done':''}">${t.done?'<svg class="icon icon-sm"><use href="#i-check"/></svg>':''}</div>
     <div class="task-time">${timeStr}</div>
     <div class="task-body"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${chunkStr}${actualStr}</div></div>
+    ${undoBtn}
   </div>`;
 }
 
@@ -1332,11 +1554,16 @@ function deleteRoutine(id) {
 function toggleDone(id) {
   const t = state.tasks.find(x => x.id === id);
   if (!t) return;
-  if (t.done) {
-    t.done = false; t.doneAt = null; t.actualMin = null;
+  // If task is in any "finished" state (done OR skipped), unchecking reverts to active
+  if (t.done || t.skipped) {
+    const wasSkipped = t.skipped;
+    t.done = false;
+    t.skipped = false;
+    t.doneAt = null;
+    t.actualMin = null;
     t.updatedAt = nowIso();
     saveLocal(); queueSync(); render();
-    toast("Unchecked");
+    toast(wasSkipped ? "Un-skipped" : "Unchecked");
     return;
   }
   durationContext = { id, estimate: t.chunk || 30, actual: t.chunk || 30 };
@@ -1351,14 +1578,22 @@ function setActual(min) {
 function saveDuration() {
   const t = state.tasks.find(x => x.id === durationContext.id);
   if (!t) { closeDurationModal(); return; }
-  t.done = true; t.doneAt = nowIso(); t.actualMin = durationContext.actual; t.updatedAt = nowIso();
+  t.done = true;
+  t.skipped = false;
+  t.doneAt = nowIso();
+  t.actualMin = durationContext.actual;
+  t.updatedAt = nowIso();
   saveLocal(); queueSync(); render(); closeDurationModal(); toast("Marked done");
 }
 function skipDuration() {
   const t = state.tasks.find(x => x.id === durationContext.id);
   if (!t) { closeDurationModal(); return; }
-  t.done = true; t.doneAt = nowIso(); t.updatedAt = nowIso();
-  saveLocal(); queueSync(); render(); closeDurationModal(); toast("Marked done");
+  t.done = false;
+  t.skipped = true;
+  t.doneAt = nowIso();
+  t.actualMin = null;
+  t.updatedAt = nowIso();
+  saveLocal(); queueSync(); render(); closeDurationModal(); toast("Skipped");
 }
 function cancelDuration() { closeDurationModal(); }
 function closeDurationModal() { document.getElementById("durationModal").classList.remove("show"); }
@@ -1422,9 +1657,504 @@ function switchTab(name) {
   document.getElementById("tab-" + name).style.display = "block";
   if (name === "history") renderHistory();
   if (name === "routines") renderRoutines();
+  if (name === "pomodoro") renderPomodoro();
 }
 
-/* ============ UTILS ============ */
+/* ============ POMODORO ============ *
+ * Phase pattern (per cycle): F, S, F, S, F, S, F, L
+ *   F = focus, S = short break, L = long break
+ * After L, the timer stops; user must press Start to begin a new cycle.
+ *
+ * Time model: each phase has a startTs (wall-clock ms) and a duration (ms).
+ * `Date.now() - startTs` is how far into the phase we are. This survives
+ * tab close / laptop sleep — when the app reopens we recompute where we are.
+ *
+ * Length changes mid-phase recompute proportionally:
+ *   newRemainingMs = newDurationMs * (oldRemainingMs / oldDurationMs)
+ *
+ * Long-gap resume: if we wake up past the end of the current phase, we walk
+ * forward through phases until we find one we're still inside. If we'd cross
+ * into a break, we skip directly to the next focus, start it fresh, no beeps.
+ *
+ * Runtime state is persisted in localStorage under "today_v2_pomo_runtime"
+ * so timing survives reload. Not part of today_v2 (so it doesn't sync).
+ */
+const POMO_PATTERN = ["focus", "short", "focus", "short", "focus", "short", "focus", "long"];
+const POMO_FOCUS_COUNT = 4; // 4 focus sessions per cycle, used for "Focus N of 4"
+
+let pomoSession = {
+  // null | "running" | "paused" | "idle" (idle = cycle just finished or never started)
+  status: "idle",
+  phaseIndex: 0,         // index into POMO_PATTERN
+  startTs: null,         // ms epoch when current phase started (running) or null
+  pausedRemainingMs: null, // ms remaining when paused; null when running
+  // currentDurationMs is recomputed from state.pomo whenever a phase begins
+  currentDurationMs: 0,
+};
+
+let pomoTicker = null;       // setInterval handle for UI tick
+let pomoBeepScheduled = null; // timeout handle for next-beep scheduler check
+let pomoAudioCtx = null;     // lazy-init AudioContext
+
+function pomoPhaseType(idx) { return POMO_PATTERN[idx % POMO_PATTERN.length]; }
+
+function pomoDurationFor(phaseType) {
+  if (phaseType === "focus") return state.pomo.focus * 60 * 1000;
+  if (phaseType === "short") return state.pomo.short * 60 * 1000;
+  if (phaseType === "long")  return state.pomo.long * 60 * 1000;
+  return 25 * 60 * 1000;
+}
+
+function pomoPhaseLabel(idx) {
+  const t = pomoPhaseType(idx);
+  if (t === "focus") return "Focus";
+  if (t === "short") return "Short Break";
+  if (t === "long")  return "Long Break";
+  return "";
+}
+
+function pomoFocusNumber(idx) {
+  // How many focus sessions complete or in-progress up to and including idx
+  let n = 0;
+  for (let i = 0; i <= idx; i++) if (POMO_PATTERN[i] === "focus") n++;
+  return n;
+}
+
+function pomoSavePersistent() {
+  try {
+    // Save runtime (timing) separately from settings.
+    localStorage.setItem("today_v2_pomo_runtime", JSON.stringify({
+      status: pomoSession.status,
+      phaseIndex: pomoSession.phaseIndex,
+      startTs: pomoSession.startTs,
+      pausedRemainingMs: pomoSession.pausedRemainingMs,
+      currentDurationMs: pomoSession.currentDurationMs,
+    }));
+    // Settings live with the rest of state on localStorage (and are device-local).
+    localStorage.setItem("today_v2_pomo_settings", JSON.stringify(state.pomo));
+  } catch (e) { console.error(e); }
+}
+
+function pomoLoadPersistent() {
+  try {
+    const s = localStorage.getItem("today_v2_pomo_settings");
+    if (s) {
+      const p = JSON.parse(s);
+      state.pomo = {
+        focus: p.focus === 15 ? 15 : 25,
+        short: p.short === 10 ? 10 : 5,
+        long:  p.long === 45 ? 45 : 30,
+        tone:  ["wood","chime","bell"].includes(p.tone) ? p.tone : "wood",
+        muted: !!p.muted,
+      };
+    }
+    const r = localStorage.getItem("today_v2_pomo_runtime");
+    if (r) {
+      const p = JSON.parse(r);
+      pomoSession.status = p.status || "idle";
+      pomoSession.phaseIndex = Math.max(0, Math.min(POMO_PATTERN.length - 1, p.phaseIndex || 0));
+      pomoSession.startTs = p.startTs || null;
+      pomoSession.pausedRemainingMs = p.pausedRemainingMs || null;
+      pomoSession.currentDurationMs = p.currentDurationMs || 0;
+
+      // Long-gap resume: if running and start is in the past beyond the phase end,
+      // walk forward. If we'd land mid-break, skip to next focus and start fresh.
+      if (pomoSession.status === "running" && pomoSession.startTs) {
+        let elapsed = Date.now() - pomoSession.startTs;
+        let dur = pomoSession.currentDurationMs;
+        if (elapsed >= dur) {
+          // We're past the current phase. Walk forward without firing beeps.
+          let idx = pomoSession.phaseIndex;
+          let remaining = elapsed - dur;
+          while (true) {
+            idx++;
+            // End of cycle?
+            if (idx >= POMO_PATTERN.length) {
+              // Cycle would have ended during the gap → stop, sit idle at start.
+              pomoSession.status = "idle";
+              pomoSession.phaseIndex = 0;
+              pomoSession.startTs = null;
+              pomoSession.pausedRemainingMs = null;
+              pomoSession.currentDurationMs = pomoDurationFor("focus");
+              break;
+            }
+            const t = pomoPhaseType(idx);
+            const d = pomoDurationFor(t);
+            if (t !== "focus") {
+              // Skipped break — keep walking, don't consume time toward it.
+              continue;
+            }
+            // Land at start of focus, full duration, no beeps for missed transitions.
+            pomoSession.phaseIndex = idx;
+            pomoSession.startTs = Date.now();
+            pomoSession.currentDurationMs = d;
+            pomoSession.pausedRemainingMs = null;
+            break;
+          }
+        }
+      }
+    } else {
+      // No runtime saved → fresh start
+      pomoSession.currentDurationMs = pomoDurationFor("focus");
+    }
+  } catch (e) { console.error(e); }
+}
+
+function pomoStartPause() {
+  if (pomoSession.status === "running") {
+    // Pause: capture remaining
+    const elapsed = Date.now() - pomoSession.startTs;
+    pomoSession.pausedRemainingMs = Math.max(0, pomoSession.currentDurationMs - elapsed);
+    pomoSession.status = "paused";
+    pomoSession.startTs = null;
+    pomoStopTicker();
+  } else {
+    // Start or resume
+    if (pomoSession.status === "idle") {
+      // Beginning a new cycle from where we are (phaseIndex 0 if reset, or wherever stopped)
+      // If we ended at the end of a long break, phaseIndex was set to 0 above.
+      pomoSession.currentDurationMs = pomoDurationFor(pomoPhaseType(pomoSession.phaseIndex));
+      pomoSession.startTs = Date.now();
+      pomoSession.pausedRemainingMs = null;
+    } else {
+      // Resume: reconstruct startTs so that (now - startTs) gives the right elapsed
+      const remaining = pomoSession.pausedRemainingMs != null ? pomoSession.pausedRemainingMs : pomoSession.currentDurationMs;
+      pomoSession.startTs = Date.now() - (pomoSession.currentDurationMs - remaining);
+      pomoSession.pausedRemainingMs = null;
+    }
+    pomoSession.status = "running";
+    pomoStartTicker();
+    // Resume audio context on user gesture
+    pomoEnsureAudio();
+  }
+  pomoSavePersistent();
+  renderPomodoro();
+}
+
+function pomoSkip() {
+  // Skip counts as a completed session — advance cycle normally, no beeps.
+  pomoAdvancePhase(false);
+}
+
+function pomoRestartPhase() {
+  // Reset current phase to full duration
+  const t = pomoPhaseType(pomoSession.phaseIndex);
+  pomoSession.currentDurationMs = pomoDurationFor(t);
+  if (pomoSession.status === "running") {
+    pomoSession.startTs = Date.now();
+    pomoSession.pausedRemainingMs = null;
+  } else {
+    pomoSession.pausedRemainingMs = pomoSession.currentDurationMs;
+    pomoSession.startTs = null;
+  }
+  pomoSavePersistent();
+  renderPomodoro();
+  toast("Session restarted");
+}
+
+function pomoReset() {
+  pomoStopTicker();
+  pomoSession.status = "idle";
+  pomoSession.phaseIndex = 0;
+  pomoSession.startTs = null;
+  pomoSession.pausedRemainingMs = null;
+  pomoSession.currentDurationMs = pomoDurationFor("focus");
+  pomoSavePersistent();
+  renderPomodoro();
+  toast("Pomodoro reset");
+}
+
+function pomoAdvancePhase(playBeeps) {
+  pomoStopTicker();
+  const nextIdx = pomoSession.phaseIndex + 1;
+  if (nextIdx >= POMO_PATTERN.length) {
+    // Cycle complete. Stop and wait for user.
+    pomoSession.status = "idle";
+    pomoSession.phaseIndex = 0;
+    pomoSession.startTs = null;
+    pomoSession.pausedRemainingMs = null;
+    pomoSession.currentDurationMs = pomoDurationFor("focus");
+    pomoSavePersistent();
+    renderPomodoro();
+    if (playBeeps) toast("Cycle complete — well done");
+    return;
+  }
+  const nextType = pomoPhaseType(nextIdx);
+  pomoSession.phaseIndex = nextIdx;
+  pomoSession.currentDurationMs = pomoDurationFor(nextType);
+  pomoSession.startTs = Date.now();
+  pomoSession.pausedRemainingMs = null;
+  pomoSession.status = "running";
+  pomoStartTicker();
+  pomoSavePersistent();
+  renderPomodoro();
+}
+
+function pomoSetLength(which, mins) {
+  if (which === "focus") state.pomo.focus = mins;
+  else if (which === "short") state.pomo.short = mins;
+  else if (which === "long") state.pomo.long = mins;
+
+  // Recompute current session proportionally
+  const curType = pomoPhaseType(pomoSession.phaseIndex);
+  const newDur = pomoDurationFor(curType);
+  if (pomoSession.status === "running") {
+    const oldDur = pomoSession.currentDurationMs;
+    const oldRemaining = Math.max(0, oldDur - (Date.now() - pomoSession.startTs));
+    const ratio = oldDur > 0 ? oldRemaining / oldDur : 1;
+    const newRemaining = Math.round(newDur * ratio);
+    pomoSession.currentDurationMs = newDur;
+    pomoSession.startTs = Date.now() - (newDur - newRemaining);
+  } else if (pomoSession.status === "paused") {
+    const oldDur = pomoSession.currentDurationMs;
+    const oldRemaining = pomoSession.pausedRemainingMs != null ? pomoSession.pausedRemainingMs : oldDur;
+    const ratio = oldDur > 0 ? oldRemaining / oldDur : 1;
+    pomoSession.currentDurationMs = newDur;
+    pomoSession.pausedRemainingMs = Math.round(newDur * ratio);
+  } else {
+    // idle — just reset to new full duration if it's the matching phase type
+    pomoSession.currentDurationMs = newDur;
+  }
+  pomoSavePersistent();
+  renderPomodoro();
+}
+
+function pomoSetTone(tone) {
+  state.pomo.tone = tone;
+  pomoSavePersistent();
+  // Demo beep so user can hear what they picked
+  if (!state.pomo.muted) { pomoEnsureAudio(); pomoBeep(); }
+}
+
+function pomoToggleMute() {
+  state.pomo.muted = !state.pomo.muted;
+  pomoSavePersistent();
+  renderPomodoro();
+  toast(state.pomo.muted ? "Sound muted" : "Sound on");
+}
+
+/* ---- Audio ---- */
+function pomoEnsureAudio() {
+  try {
+    if (!pomoAudioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      pomoAudioCtx = new Ctx();
+    }
+    if (pomoAudioCtx.state === "suspended") pomoAudioCtx.resume();
+  } catch (e) { /* no audio available */ }
+}
+
+function pomoBeep() {
+  if (state.pomo.muted) return;
+  if (!pomoAudioCtx) return;
+  const ctx = pomoAudioCtx;
+  const now = ctx.currentTime;
+  const tone = state.pomo.tone;
+
+  // 3 gentle tones, each ~0.25s with a soft envelope
+  let freq = 660, duration = 0.25, type = "sine";
+  if (tone === "wood")  { freq = 320; duration = 0.18; type = "triangle"; }
+  if (tone === "chime") { freq = 880; duration = 0.30; type = "sine"; }
+  if (tone === "bell")  { freq = 520; duration = 0.40; type = "sine"; }
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, now);
+  // Gentle attack and slow exponential decay — no harsh edges
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.18, now + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  if (tone === "bell") {
+    // Add a soft overtone for a fuller bell
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(freq * 2.01, now);
+    gain2.gain.setValueAtTime(0.0001, now);
+    gain2.gain.exponentialRampToValueAtTime(0.06, now + 0.02);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc2.start(now); osc2.stop(now + duration + 0.05);
+  }
+
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(now); osc.stop(now + duration + 0.05);
+}
+
+/* ---- Ticker ---- */
+function pomoStartTicker() {
+  pomoStopTicker();
+  // Use 200ms to keep the time readout responsive without burning cycles
+  pomoTicker = setInterval(() => pomoTick(), 200);
+}
+function pomoStopTicker() {
+  if (pomoTicker) { clearInterval(pomoTicker); pomoTicker = null; }
+}
+
+// Beep tracker — which beeps in the current phase have already fired.
+// Reset on phase change. Indexed 0..3 = last 4 seconds; index 3 is "at zero".
+let pomoBeepsFired = new Set();
+let pomoBeepPhaseKey = "";
+
+function pomoTick() {
+  if (pomoSession.status !== "running") { pomoStopTicker(); return; }
+  const elapsed = Date.now() - pomoSession.startTs;
+  const remaining = pomoSession.currentDurationMs - elapsed;
+
+  // Beep tracking: new phase → new tracker
+  const phaseKey = pomoSession.phaseIndex + ":" + pomoSession.startTs;
+  if (phaseKey !== pomoBeepPhaseKey) { pomoBeepPhaseKey = phaseKey; pomoBeepsFired = new Set(); }
+
+  // Fire beeps for last 4 seconds (4, 3, 2, 1 seconds remaining → beep 0..3)
+  // Beep at zero remaining is the final one.
+  const secondsLeft = Math.ceil(remaining / 1000);
+  for (let i = 0; i < 4; i++) {
+    const beepSecondsLeft = 3 - i; // 3,2,1,0
+    if (secondsLeft <= beepSecondsLeft && !pomoBeepsFired.has(i)) {
+      pomoBeepsFired.add(i);
+      pomoBeep();
+    }
+  }
+
+  if (remaining <= 0) {
+    // Phase ended naturally — beeps already played. Advance.
+    pomoAdvancePhase(true);
+    return;
+  }
+  pomoRenderTimeOnly(remaining);
+  pomoRenderFill(elapsed, pomoSession.currentDurationMs);
+}
+
+/* ---- Render ---- */
+function pomoRemainingMs() {
+  if (pomoSession.status === "running") {
+    return Math.max(0, pomoSession.currentDurationMs - (Date.now() - pomoSession.startTs));
+  }
+  if (pomoSession.status === "paused") {
+    return pomoSession.pausedRemainingMs != null ? pomoSession.pausedRemainingMs : pomoSession.currentDurationMs;
+  }
+  return pomoSession.currentDurationMs;
+}
+
+function pomoFormatTime(ms) {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+function pomoRenderTimeOnly(remainingMs) {
+  document.getElementById("pomoTimeDisplay").textContent = pomoFormatTime(remainingMs);
+}
+
+function pomoRenderFill(elapsedMs, totalMs) {
+  const fillEl = document.getElementById("pomoTomatoFill");
+  if (!fillEl) return;
+  const progress = totalMs > 0 ? Math.min(1, Math.max(0, elapsedMs / totalMs)) : 0;
+  const type = pomoPhaseType(pomoSession.phaseIndex);
+  // viewBox is 100 tall. Tomato body sits roughly y=23 (top) to y=92 (bottom).
+  // We'll fill within the clipped tomato shape using a full-width rect.
+  // Tomato inner span: top = 23, bottom = 92, height = 69.
+  const TOMATO_TOP = 23, TOMATO_BOTTOM = 92;
+  const TOMATO_H = TOMATO_BOTTOM - TOMATO_TOP;
+
+  if (type === "focus") {
+    // Bottom-up red fill: rect grows upward as progress increases
+    const fillH = TOMATO_H * progress;
+    fillEl.setAttribute("class", "tomato-fill focus");
+    fillEl.setAttribute("y", String(TOMATO_BOTTOM - fillH));
+    fillEl.setAttribute("height", String(fillH));
+  } else {
+    // Break: starts full green, drains top-down (empties from the top)
+    const remainingFrac = 1 - progress;
+    const fillH = TOMATO_H * remainingFrac;
+    // Fill sits at the bottom; top edge moves down as it drains
+    fillEl.setAttribute("class", "tomato-fill break");
+    fillEl.setAttribute("y", String(TOMATO_BOTTOM - fillH));
+    fillEl.setAttribute("height", String(fillH));
+  }
+}
+
+function renderPomodoro() {
+  // Phase labels
+  const phaseName = document.getElementById("pomoPhaseName");
+  const phaseLabel = document.getElementById("pomoPhaseLabel");
+  const counter = document.getElementById("pomoSessionCounter");
+  const startBtn = document.getElementById("pomoStartBtn");
+  const startLabel = document.getElementById("pomoStartLabel");
+  const remainingText = document.getElementById("pomoRemainingText");
+  if (!phaseName) return; // tab not present in DOM
+
+  const type = pomoPhaseType(pomoSession.phaseIndex);
+  phaseName.textContent = pomoPhaseLabel(pomoSession.phaseIndex);
+
+  if (pomoSession.status === "running") phaseLabel.textContent = "In progress";
+  else if (pomoSession.status === "paused") phaseLabel.textContent = "Paused";
+  else phaseLabel.textContent = "Ready";
+
+  if (type === "focus") {
+    counter.textContent = `Focus ${pomoFocusNumber(pomoSession.phaseIndex)} of ${POMO_FOCUS_COUNT}`;
+  } else if (type === "short") {
+    counter.textContent = "Short break";
+  } else {
+    counter.textContent = "Long break — last one this cycle";
+  }
+
+  // Start/Pause button label + icon
+  const startUse = startBtn.querySelector("use");
+  if (pomoSession.status === "running") {
+    startUse.setAttribute("href", "#i-pause");
+    startLabel.textContent = "Pause";
+  } else {
+    startUse.setAttribute("href", "#i-play");
+    startLabel.textContent = pomoSession.status === "paused" ? "Resume" : "Start";
+  }
+
+  // Time + fill
+  const remaining = pomoRemainingMs();
+  pomoRenderTimeOnly(remaining);
+  const elapsed = pomoSession.currentDurationMs - remaining;
+  pomoRenderFill(elapsed, pomoSession.currentDurationMs);
+
+  // Remaining helper text
+  if (pomoSession.status === "idle") {
+    remainingText.textContent = pomoSession.phaseIndex === 0 ? "Press Start when you're ready" : "Cycle complete — press Start for a new one";
+  } else if (pomoSession.status === "paused") {
+    remainingText.textContent = "Paused";
+  } else {
+    remainingText.textContent = (type === "focus" ? "Stay with it" : "Rest your eyes");
+  }
+
+  // Length toggles
+  document.querySelectorAll("[data-pomo-focus]").forEach(b => b.classList.toggle("active", +b.dataset.pomoFocus === state.pomo.focus));
+  document.querySelectorAll("[data-pomo-short]").forEach(b => b.classList.toggle("active", +b.dataset.pomoShort === state.pomo.short));
+  document.querySelectorAll("[data-pomo-long]").forEach(b => b.classList.toggle("active", +b.dataset.pomoLong === state.pomo.long));
+
+  // Sound controls
+  const sel = document.getElementById("pomoToneSelect");
+  if (sel && sel.value !== state.pomo.tone) sel.value = state.pomo.tone;
+  const muteBtn = document.getElementById("pomoMuteBtn");
+  muteBtn.classList.toggle("muted", state.pomo.muted);
+  muteBtn.querySelector("use").setAttribute("href", state.pomo.muted ? "#i-volume-off" : "#i-volume");
+
+  // Session dots: 8 dots, one per phase in the cycle
+  const dotsEl = document.getElementById("pomoDots");
+  let dotsHtml = "";
+  for (let i = 0; i < POMO_PATTERN.length; i++) {
+    let cls = "pomo-dot";
+    if (pomoSession.status === "idle" && pomoSession.phaseIndex === 0) {
+      // Nothing in progress; all empty
+    } else if (i < pomoSession.phaseIndex) cls += " complete";
+    else if (i === pomoSession.phaseIndex) cls += " current";
+    dotsHtml += `<span class="${cls}" title="${pomoPhaseLabel(i)}"></span>`;
+  }
+  dotsEl.innerHTML = dotsHtml;
+}
+
+
 function escapeHtml(s) { return String(s || "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
 let toastTimer = null;
 function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2000); }
@@ -1447,14 +2177,7 @@ function init() {
   document.documentElement.setAttribute("data-theme", savedTheme);
   loadLocal();
   render();
-  // Pull from server on startup (only pushes are gated by hydrated flag).
-  // pullFromServer() handles its own status messages and silently falls back
-  // to local-only mode if the server is unreachable.
-  if (state.syncUrl) {
-    pullFromServer();
-  } else {
-    updateSyncStatus("", "Local only");
-  }
+  handleStartupSync();
   setInterval(() => render(), 30000);
 }
 init();
