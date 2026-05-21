@@ -83,49 +83,104 @@
 
   /* Beaker — inverted, fills from bottom */
   .beaker-wrap { display: flex; gap: 8px; margin: 16px 0 8px; }
-  .beaker-ticks {
-    width: 38px; position: relative; flex-shrink: 0;
-    padding: 0 4px;
-  }
-  .tick {
-    position: absolute; right: 2px;
-    font-size: 9.5px; color: var(--text-3); font-variant-numeric: tabular-nums;
-    transform: translateY(-50%);
-    line-height: 1;
-  }
-  .tick.major { font-weight: 600; color: var(--text-2); font-size: 10px; }
-  .tick-line {
-    position: absolute; right: -2px; width: 5px; height: 1px;
-    background: var(--border);
-    transform: translateY(-50%);
-  }
-  .tick.major .tick-line { width: 8px; background: var(--border-strong); }
-
+  
+  /* The Main Beaker Body - Straight sides */
   .beaker {
     position: relative;
     flex: 1;
     height: 500px;
+    margin-top: 30px; 
     border: 2px solid var(--border-strong);
-    border-top: 1px solid var(--border);
-    border-radius: 22px 22px 14px 14px / 28px 28px 14px 14px;
+    border-top: none; 
+    border-radius: 0 0 25px 25px; 
     background: var(--surface-2);
-    overflow: visible;
+    overflow: visible; 
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
   }
+
+  /* The Flared Top Rim */
+  .beaker::before {
+    content: "";
+    position: absolute;
+    top: -12px; 
+    left: -5px;   
+    right: -5px;  
+    height: 20px;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%; 
+    background: var(--surface-2);
+    z-index: 5;
+  }
+  
+  /* Removes any old spout */
+  .beaker::after {
+    display: none;
+  }
+
   .beaker-inner {
-    position: relative; width: 100%;
+    position: relative; 
+    width: 100%;
     height: 100%;
-    overflow: hidden;
-    border-radius: 21px 21px 13px 13px / 27px 27px 13px 13px;
+    overflow: hidden; 
+    border-radius: 0 0 23px 23px; 
+    background: linear-gradient(90deg, 
+      rgba(255,255,255,0.2) 0%, 
+      rgba(255,255,255,0) 15%, 
+      rgba(0,0,0,0.02) 100%
+    );
   }
+
+  /* Your crucial task liquid styling */
   .beaker-segment {
     position: absolute; left: 0; right: 0;
     overflow: hidden;
     display: flex; align-items: center;
-    padding: 0 10px;
+    padding: 0 10px 0 45px;
     font-size: 10.5px; color: var(--text-2);
     border-top: 1px solid rgba(0,0,0,0.04);
     transition: opacity 0.2s;
   }
+
+  /* The new embedded ruler styles */
+  
+  .ruler-overlay { 
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    width: 100%; /* Spans full width so clipping works */
+    height: 100%; 
+    pointer-events: none; 
+    z-index: 10; 
+    overflow: hidden; /* Clips the 7am label inside the glass */
+    border-radius: 0 0 23px 23px; /* Matches the beaker glass curve */
+  }
+  
+  .ruler-tick {
+    position: absolute; 
+    left: 0; 
+    display: flex; 
+    align-items: center; 
+    gap: 6px;
+    /* This magic line pushes the element down by 50% of its own height, 
+       ensuring the line sits exactly on the mathematical coordinate! */
+    transform: translateY(50%); 
+  }
+  
+  .ruler-line { 
+    width: 12px; 
+    height: 1px; 
+    background: var(--text-3); 
+    opacity: 0.7; 
+  }
+  
+  .ruler-label { 
+    font-size: 10px; 
+    color: var(--text-3); 
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    line-height: 1; 
+  }
+
   [data-theme="sumi"] .beaker-segment { border-top-color: rgba(255,255,255,0.04); }
   .seg-elapsed-fill { background: var(--elapsed-fill); border-top: none; }
   .seg-fixed { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
@@ -333,7 +388,8 @@
     .header { gap: 8px; }
     .theme-grid { grid-template-columns: repeat(3, 1fr); }
     .task-check { width: 22px; height: 22px; }
-  }
+
+}
 </style>
 </head>
 <body>
@@ -408,14 +464,17 @@
         </div>
 
         <div class="beaker-wrap">
-          <div class="beaker-ticks" id="beakerTicks"></div>
           <div class="beaker">
             <div class="overflow-zone" id="overflowZone" style="display:none">
               <div class="overflow-label" id="overflowLabel">—</div>
               <div class="overflow-light" id="overflowLight" style="height:0%"></div>
               <div class="overflow-dark" id="overflowDark" style="height:0%"></div>
             </div>
+            
             <div class="beaker-inner" id="beakerInner"></div>
+            
+            <div id="innerRuler" class="ruler-overlay"></div>
+            
             <div class="now-line" id="nowLine" style="bottom: 0%"></div>
           </div>
         </div>
@@ -1064,14 +1123,14 @@ function dayLength() {
   if (bed <= wake) bed += 24*60;
   return bed - wake;
 }
-/* Inverted: 0 = bottom (wake), 100 = top (bedtime) */
+/* Inverted: 0 = bottom (wake), 100 = top (bedtime + 1hr visual buffer) */
 function pctFromBottom(min) {
   const wake = timeToMin(state.wakeTime);
-  const len = dayLength();
+  const visualLen = dayLength() + 60; // Adds 1 hour to the top of the glass visually
   let v = min - wake;
   if (v < 0) v = 0;
-  if (v > len) v = len;
-  return (v / len) * 100;
+  if (v > visualLen) v = visualLen;
+  return (v / visualLen) * 100;
 }
 
 /* ============ RENDER: CLOCK ============ */
@@ -1086,32 +1145,12 @@ function renderClock() {
   document.getElementById("brandDate").textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 
-/* ============ RENDER: BEAKER TICKS ============ */
-function renderTicks() {
-  const wake = timeToMin(state.wakeTime);
-  const bed = timeToMin(state.bedTime); const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
-  const ticks = document.getElementById("beakerTicks");
-  let html = "";
-  // Round wake up to next hour
-  const firstHour = Math.ceil(wake / 60) * 60;
-  for (let m = firstHour; m <= bedAdj; m += 60) {
-    const pct = pctFromBottom(m);
-    const hourOfDay = (Math.floor(m / 60)) % 24;
-    const display = hourOfDay === 0 ? 12 : (hourOfDay > 12 ? hourOfDay - 12 : hourOfDay);
-    const ampm = hourOfDay < 12 ? "a" : "p";
-    // Major every 4 hours from wake
-    const isMajor = ((m - firstHour) / 60) % 4 === 0;
-    html += `<div class="tick ${isMajor ? 'major' : ''}" style="bottom: ${pct}%">${display}${ampm}<span class="tick-line"></span></div>`;
-  }
-  ticks.innerHTML = html;
-}
-
-/* ============ RENDER: BEAKER ============ */
+/* ============ RENDER: BEAKER AND TICKS ============ */
 function renderBeaker() {
   const wake = timeToMin(state.wakeTime);
-  const bed = timeToMin(state.bedTime); const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
+  const bed = timeToMin(state.bedTime); 
+  const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
   const now = nowMin();
-  const len = dayLength();
 
   const today = tasksForDate(todayIso());
   const timedBlocks = today
@@ -1122,13 +1161,13 @@ function renderBeaker() {
   const inner = document.getElementById("beakerInner");
   let html = "";
 
-  // Elapsed fill: from bottom (wake) up to NOW
+  // Elapsed fill stops at actual bedtime
   if (now > wake) {
     const elapsedPct = pctFromBottom(Math.min(now, bedAdj));
     html += `<div class="beaker-segment seg-elapsed-fill" style="bottom:0%; height:${elapsedPct}%; z-index:0; border-top:none"></div>`;
   }
 
-  // Timed blocks
+  // Timed blocks stop at actual bedtime
   timedBlocks.forEach(b => {
     if (b.end <= wake || b.start >= bedAdj) return;
     const bottom = pctFromBottom(Math.max(b.start, wake));
@@ -1149,16 +1188,16 @@ function renderBeaker() {
 
   inner.innerHTML = html;
 
-  // NOW line (positioned from bottom)
   const nowPct = pctFromBottom(now);
   const nl = document.getElementById("nowLine");
-  if (now < wake || now > bedAdj) { nl.style.display = "none"; }
+  // The NOW line can float up into the buffer if you are awake past bedtime
+  if (now < wake || now > (bedAdj + 60)) { nl.style.display = "none"; }
   else { nl.style.display = "block"; nl.style.bottom = nowPct + "%"; nl.style.top = "auto"; }
 
-  // Overflow: calculate projection
+  // Overflow math remains pure (uses bedAdj)
   const planNeeded = today.filter(t => !t.done).reduce((s,t) => s + (t.chunk || 30), 0);
   const projectedEndMin = (now < wake ? wake : now) + planNeeded;
-  const overshoot = projectedEndMin - bedAdj;  // minutes past bedtime
+  const overshoot = projectedEndMin - bedAdj;
 
   const ovZone = document.getElementById("overflowZone");
   const ovLight = document.getElementById("overflowLight");
@@ -1169,14 +1208,40 @@ function renderBeaker() {
     ovZone.style.display = "none";
   } else {
     ovZone.style.display = "block";
-    // Light red: up to 60min overshoot maps to up to 50% of the 50px zone
-    // Dark red: 60+min overshoot fills more
     const lightHeight = Math.min(50, (Math.min(overshoot, 60) / 60) * 50);
     const darkHeight = overshoot > 60 ? Math.min(50, ((overshoot - 60) / 60) * 50) : 0;
     ovLight.style.height = lightHeight + "px";
     ovDark.style.height = darkHeight + "px";
     ovLabel.textContent = `↑ ${format12(minToTime(projectedEndMin % (24*60)))}`;
   }
+}
+
+function renderTicks() {
+  const wake = timeToMin(state.wakeTime);
+  const bed = timeToMin(state.bedTime); 
+  const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
+  
+  const ruler = document.getElementById("innerRuler");
+  if (!ruler) return;
+  
+  let html = "";
+  const firstHour = Math.ceil(wake / 60) * 60;
+  
+  // Loop up to actual bedtime. No labels drawn in the 1-hour top buffer space.
+  for (let m = firstHour; m <= bedAdj; m += 60) {
+    const pct = pctFromBottom(m);
+    const hourOfDay = (Math.floor(m / 60)) % 24;
+    const display = hourOfDay === 0 ? 12 : (hourOfDay > 12 ? hourOfDay - 12 : hourOfDay);
+    const ampm = hourOfDay < 12 ? "a" : "p";
+    
+    html += `
+      <div class="ruler-tick" style="bottom: ${pct}%">
+        <span class="ruler-line"></span>
+        <span class="ruler-label">${display}${ampm}</span>
+      </div>`;
+  }
+  
+  ruler.innerHTML = html;
 }
 
 /* ============ RENDER: STATUS BAR ============ */
