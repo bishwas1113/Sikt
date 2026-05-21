@@ -663,23 +663,35 @@ function materializeRoutinesForDate(iso) {
   const dow = new Date(iso + "T00:00:00").getDay();
   const matching = state.routines.filter(r => Array.isArray(r.days) && r.days.includes(dow));
   let added = false;
+  
   matching.forEach(r => {
     const tid = `rt:${r.id}:${iso}`;
-    if (state.tasks.find(t => t.id === tid)) return;  // already exists
-    if (state.deletedRoutineInstances.includes(tid)) return;  // user deleted, don't re-add
-    state.tasks.push({
-      id: tid,
-      title: r.title,
-      type: r.type || "task",
-      chunk: r.chunk || 30,
-      time: r.time || "",
-      date: iso,
-      done: false,
-      fromRoutine: true,
-      routineId: r.id,
-      updatedAt: nowIso(),
-    });
-    added = true;
+    // Check if task exists AND is not skipped
+    const existingTask = state.tasks.find(t => t.id === tid);
+    
+    // If it exists and is NOT skipped, do nothing.
+    if (existingTask && !existingTask.skipped) return;
+    
+    // If it exists but IS skipped, or doesn't exist, we skip re-adding it 
+    // IF it's in the deleted list
+    if (state.deletedRoutineInstances.includes(tid)) return;
+    
+    // If it doesn't exist at all, add it
+    if (!existingTask) {
+      state.tasks.push({
+        id: tid,
+        title: r.title,
+        type: r.type || "task",
+        chunk: r.chunk || 30,
+        time: r.time || "",
+        date: iso,
+        done: false,
+        fromRoutine: true,
+        routineId: r.id,
+        updatedAt: nowIso(),
+      });
+      added = true;
+    }
   });
   return added;
 }
