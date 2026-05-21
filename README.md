@@ -21,7 +21,7 @@ As someone who suffers from time blindness and struggles with executive function
 ## Getting Started
 1. **Setup:** Calibrate your "beaker" by defining your wake and bedtimes in the settings menu.
 2. **Install:** For the best experience, open this site on your phone's browser and select **"Add to Home Screen"** to use Sikt as a standalone app.
-3. **Optional - Syncing and backup:** Ability to sync the app with your own Google sheets, and connect it to via Google Apps Script Web App URL in the settings panel to enable real-time data backup. To enable this (**5 minutes 1 time setup** :
+3. **Optional - Syncing and backup:** Ability to sync the app with your own Google sheets, and connect it to via Google Apps Script Web App URL in the settings panel to enable real-time data backup. To enable this (**One time setup - approximately 5-10 mins**) :
    - Create an empty Google Sheets document
    - Click on **Extensions** > **Apps Script**
 <img width="582" height="218" alt="image" src="https://github.com/user-attachments/assets/a0780609-8525-46d0-ac32-24e88323fc02" />
