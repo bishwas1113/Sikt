@@ -19,9 +19,10 @@ In an era of digital noise, productivity isn't about doing more—it’s about h
 As someone who suffers from time blindness and struggles with executive function, I wanted a way to visualize how much time i have left in the day for the remainder of tasks, both as a way to organize and to prioritize. 
 
 ## Getting Started
-1. **Syncing:** Add your Google Apps Script Web App URL in the settings panel to enable real-time data backup to Google Sheets.
-2. **Setup:** Calibrate your "beaker" by defining your wake and bedtimes in the settings menu.
-3. **Install:** For the best experience, open this site on your phone's browser and select **"Add to Home Screen"** to use Sikt as a standalone app.
+1. **Setup:** Calibrate your "beaker" by defining your wake and bedtimes in the settings menu.
+2. **Install:** For the best experience, open this site on your phone's browser and select **"Add to Home Screen"** to use Sikt as a standalone app.
+3. **Optional - Syncing and backup:** Ability to sync the app with your own Google sheets, and connect it to via Google Apps Script Web App URL in the settings panel to enable real-time data backup to Google Sheets. 
+
 
 ## Technical Details
 * **Stack:** Pure HTML5, CSS3, and vanilla JavaScript (zero dependencies).
