@@ -23,7 +23,8 @@ As someone who suffers from time blindness and struggles with executive function
 2. **Install:** For the best experience, open this site on your phone's browser and select **"Add to Home Screen"** to use Sikt as a standalone app.
 3. **Optional - Syncing and backup:** Ability to sync the app with your own Google sheets, and connect it to via Google Apps Script Web App URL in the settings panel to enable real-time data backup. To enable this (**5 minutes 1 time setup** :
    - Create an empty Google Sheets document
-   - Click on **Extensions** > **Apps Script** <img width="582" height="218" alt="image" src="https://github.com/user-attachments/assets/a0780609-8525-46d0-ac32-24e88323fc02" />
+   - Click on **Extensions** > **Apps Script**
+<img width="582" height="218" alt="image" src="https://github.com/user-attachments/assets/a0780609-8525-46d0-ac32-24e88323fc02" />
    - Delete the entire content of the execution log,
 <img width="1307" height="347" alt="image" src="https://github.com/user-attachments/assets/90889cc7-9780-4ec7-ba15-a387bc2f26e1" />
    - Copy and paste the code found in the github named "Apps Script code" into this space and press save or Ctrl+S/Cmd+S
