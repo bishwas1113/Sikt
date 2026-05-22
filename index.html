@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sikt</title>
+<title>Day Radar</title>
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Sikt">
+<meta name="apple-mobile-web-app-title" content="Day Radar">
 <meta name="theme-color" content="#4a5d7e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,6 +71,8 @@
   /* Layout */
   .main-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; }
   @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+  /* Mobile waterfall sits between beaker and agenda; spans full width */
+  #waterfallMobile { grid-column: 1 / -1; }
 
   /* Beaker card */
   .beaker-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; position: sticky; top: 20px; height: fit-content; overflow: visible; }
@@ -209,6 +211,7 @@
   .now-line::after { content: "NOW"; position: absolute; right: 4px; top: -16px; font-size: 9px; font-weight: 700; color: var(--danger); letter-spacing: 0.1em; background: var(--surface); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--danger); }
 
   /* Waterfall stats */
+  #waterfallMobile { display: none; } /* shown only on mobile via media query */
   .waterfall { margin-top: 14px; }
   .wf-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 12px; }
   .wf-icon { width: 22px; height: 22px; border-radius: 5px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--text-2); flex-shrink: 0; }
@@ -401,6 +404,18 @@
     .wf-label { font-size: 11px; }
     .wf-value { min-width: 40px; font-size: 10px; }
 
+    /* On mobile, waterfall moves out of beaker-card into its own full-width panel */
+    .waterfall {
+      margin-top: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+    }
+    /* Hide waterfall inside beaker-card on mobile (we render a clone outside) */
+    .beaker-card .waterfall { display: none; }
+    #waterfallMobile { display: block; }
+
     /* Status bar: slightly smaller */
     .status-bar { padding: 10px 14px; font-size: 13px; }
 
@@ -476,9 +491,9 @@
 <div class="app">
   <div class="header">
     <div class="brand">
-      <div class="brand-icon brand-icon-img"><img src="icon.png" alt="Sikt" /></div>
+      <div class="brand-icon brand-icon-img"><img src="icon.png" alt="Day Radar" /></div>
       <div class="brand-text">
-        <div class="brand-title display">Sikt</div>
+        <div class="brand-title display">Day Radar</div>
         <div class="brand-date" id="brandDate">—</div>
       </div>
     </div>
@@ -525,9 +540,12 @@
           </div>
         </div>
 
-        <!-- Waterfall stats -->
+        <!-- Waterfall stats (hidden on mobile — rendered in #waterfallMobile instead) -->
         <div class="waterfall" id="waterfall"></div>
       </div>
+
+      <!-- Mobile-only waterfall: full width, between beaker and agenda -->
+      <div class="waterfall" id="waterfallMobile"></div>
 
       <div class="agenda">
         <div class="panel behind-tray" id="behindTray" style="display:none">
@@ -1345,11 +1363,9 @@ function renderWaterfall() {
   const planMin = routineMin + taskMin;
   const freeMin = Math.max(0, remainingMin - planMin);
 
-  // Bar widths as % of remainingMin (each cascades from end of prior)
-  const wfEl = document.getElementById("waterfall");
   const pct = (m) => remainingMin > 0 ? Math.min(100, (m / remainingMin) * 100) : 0;
 
-  wfEl.innerHTML = `
+  const html = `
     <div class="wf-row">
       <div class="wf-icon"><svg class="icon"><use href="#i-clock"/></svg></div>
       <div class="wf-label">Time till bedtime</div>
@@ -1375,6 +1391,10 @@ function renderWaterfall() {
       <div class="wf-value">${formatHm(freeMin)}</div>
     </div>
   `;
+
+  // Write to both — CSS hides the right one per breakpoint
+  document.getElementById("waterfall").innerHTML = html;
+  document.getElementById("waterfallMobile").innerHTML = html;
 }
 
 /* ============ RENDER: AGENDA ============ */
