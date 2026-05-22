@@ -73,7 +73,7 @@
   @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
 
   /* Beaker card */
-  .beaker-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; position: sticky; top: 20px; height: fit-content; }
+  .beaker-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; position: sticky; top: 20px; height: fit-content; overflow: visible; }
   .beaker-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
   .clock { font-family: "Fraunces", serif; font-size: 30px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
   .clock-meridiem { font-size: 12px; color: var(--text-2); margin-left: 4px; font-family: "Inter", sans-serif; font-weight: 500; }
@@ -374,12 +374,70 @@
   .pomo-help b { color: var(--text-2); font-weight: 600; }
 
   @media (max-width: 720px) {
-    .app { padding: 16px 12px 100px; }
-    .beaker-card { position: static; }
-    .beaker { height: 380px; }
-    .header { gap: 8px; }
-    .theme-grid { grid-template-columns: repeat(3, 1fr); }
+    /* Core layout */
+    .app { padding: 12px 12px 90px; }
+    .header { gap: 6px; flex-wrap: nowrap; }
+    .brand-title { font-size: 15px; }
+    .brand-date { display: none; } /* hide long date string, saves space */
+    .sync-status { display: none; } /* moved to settings on mobile */
+
+    /* Tabs — shrink labels, hide icon on smallest screens */
+    .tabs { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); }
+    .tab { padding: 7px 4px; font-size: 11px; gap: 3px; justify-content: center; }
+    .tab .icon-sm { display: none; } /* icon takes too much space at 4 tabs */
+
+    /* Today tab: stack beaker above agenda, constrain beaker width */
+    .main-grid { grid-template-columns: 1fr; gap: 14px; }
+    .beaker-card {
+      position: static;
+      max-width: 360px;     /* keeps it from being a fat pancake on wide phones */
+      margin: 0 auto;       /* centre it */
+    }
+    .beaker { height: 320px; }
+    .beaker-wrap { margin: 10px 0 6px; }
+
+    /* Waterfall: tighten up */
+    .wf-bar-wrap { flex: 1.5; }
+    .wf-label { font-size: 11px; }
+    .wf-value { min-width: 40px; font-size: 10px; }
+
+    /* Status bar: slightly smaller */
+    .status-bar { padding: 10px 14px; font-size: 13px; }
+
+    /* Agenda tasks */
+    .task-actions { opacity: 1; }
     .task-check { width: 22px; height: 22px; }
+    .task-title { font-size: 13px; }
+
+    /* Pomodoro tab: single column, smaller tomato */
+    .pomo-wrap { grid-template-columns: 1fr; gap: 14px; }
+    .pomo-tomato { width: 160px; height: 160px; }
+    .pomo-time { font-size: 36px; }
+    .pomo-stage { padding: 18px 16px; }
+    .pomo-controls { gap: 6px; }
+    .pomo-controls .btn { padding: 7px 10px; font-size: 12px; }
+    .pomo-controls .btn-primary { min-width: 80px; }
+
+    /* History calendar */
+    .week-day { padding: 7px 4px; }
+    .week-day .wd-date { font-size: 15px; }
+    .wd-count { display: none; } /* too cramped */
+    .summary-bars { height: 48px; }
+
+    /* Modals: full-width on mobile */
+    .modal { padding: 18px 16px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .modal-backdrop { align-items: flex-end; padding: 0; }
+    .chunk-grid { grid-template-columns: repeat(3, 1fr); }
+    .theme-grid { grid-template-columns: repeat(3, 1fr); }
+    .form-actions { flex-wrap: wrap; gap: 6px; }
+  }
+
+  /* Very narrow phones (≤380px) — e.g. iPhone SE */
+  @media (max-width: 380px) {
+    .tab { font-size: 10px; padding: 6px 2px; }
+    .beaker { height: 280px; }
+    .pomo-tomato { width: 130px; height: 130px; }
+    .pomo-time { font-size: 30px; }
   }
 </style>
 </head>
@@ -1202,9 +1260,10 @@ function renderBeaker() {
   else { nl.style.display = "block"; nl.style.bottom = nowPct + "%"; nl.style.top = "auto"; }
 
   // Overflow: calculate projection
-  const planNeeded = today.filter(t => !t.done).reduce((s,t) => s + (t.chunk || 30), 0);
-  const projectedEndMin = (now < wake ? wake : now) + planNeeded;
-  const overshoot = projectedEndMin - bedAdj;  // minutes past bedtime
+  const planNeeded = today.filter(t => !t.done && !t.skipped).reduce((s,t) => s + (t.chunk || 30), 0);
+  const startFrom = Math.max(now, wake);
+  const projectedEndMin = startFrom + planNeeded;
+  const overshoot = projectedEndMin - bedAdj;
 
   const ovZone = document.getElementById("overflowZone");
   const ovLight = document.getElementById("overflowLight");
@@ -1231,8 +1290,10 @@ function renderStatus() {
   const bed = timeToMin(state.bedTime); const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
   const now = nowMin();
   const today = tasksForDate(todayIso());
-  const planNeeded = today.filter(t => !t.done).reduce((s,t) => s + (t.chunk || 30), 0);
-  const remainingMin = Math.max(0, bedAdj - now);
+  const planNeeded = today.filter(t => !t.done && !t.skipped).reduce((s,t) => s + (t.chunk || 30), 0);
+  // Remaining time starts from the later of now or wake (so pre-wake doesn't inflate)
+  const startFrom = Math.max(now, wake);
+  const remainingMin = Math.max(0, bedAdj - startFrom);
   const overshoot = planNeeded - remainingMin;
 
   const bar = document.getElementById("statusBar");
@@ -1240,7 +1301,7 @@ function renderStatus() {
 
   if (now >= bedAdj) {
     bar.className = "status-bar s-ok";
-    txt.innerHTML = `<span class="status-time">End of day</span><span class="status-sub">${today.filter(t=>t.done).length} done · ${today.filter(t=>!t.done).length} unfinished</span>`;
+    txt.innerHTML = `<span class="status-time">End of day</span><span class="status-sub">${today.filter(t=>t.done).length} done · ${today.filter(t=>!t.done&&!t.skipped).length} unfinished</span>`;
     return;
   }
   if (now < wake) {
@@ -1253,14 +1314,14 @@ function renderStatus() {
     txt.innerHTML = `On track for <span class="status-time">${format12(state.bedTime)}</span>`;
     return;
   }
-  // Overcommitted
-  const projectedEnd = (now + planNeeded) % (24*60);
+  // Overcommitted — show projected end time
+  const projectedEnd = minToTime((startFrom + planNeeded) % (24 * 60));
   if (overshoot <= 60) {
     bar.className = "status-bar s-warn";
-    txt.innerHTML = `Delayed to <span class="status-time">${format12(minToTime(projectedEnd))}</span><span class="status-sub">${formatHm(overshoot)} past bedtime</span>`;
+    txt.innerHTML = `Delayed to <span class="status-time">${format12(projectedEnd)}</span><span class="status-sub">${formatHm(overshoot)} past bedtime</span>`;
   } else {
     bar.className = "status-bar s-bad";
-    txt.innerHTML = `Delayed to <span class="status-time">${format12(minToTime(projectedEnd))}</span><span class="status-sub">${formatHm(overshoot)} past bedtime</span>`;
+    txt.innerHTML = `Delayed to <span class="status-time">${format12(projectedEnd)}</span><span class="status-sub">${formatHm(overshoot)} past bedtime</span>`;
   }
 }
 function formatHm(m) {
