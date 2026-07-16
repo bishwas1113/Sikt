@@ -250,7 +250,7 @@
   .task-check.done svg { color: var(--surface); width: 11px; height: 11px; }
   .task-time { font-size: 11px; color: var(--text-2); font-variant-numeric: tabular-nums; min-width: 60px; font-weight: 500; }
   .task-body { flex: 1; min-width: 0; }
-  .task-title { font-size: 14px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task-title { font-size: 14px; font-weight: 500; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; word-break: break-word; line-height: 1.3; }
   .task.done .task-title { color: var(--text-3); text-decoration: line-through; }
   .task-meta { font-size: 11px; color: var(--text-3); margin-top: 1px; display: flex; align-items: center; gap: 6px; }
   .task-tag { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 999px; background: var(--neutral-soft); color: var(--text-2); font-size: 10px; font-weight: 500; }
@@ -428,7 +428,7 @@
     }
     .beaker-wrap {
       width: 100%;
-      max-width: 280px;
+      max-width: 55vw;
       margin: 0 auto;
     }
     .beaker { height: min(340px, 66vh); }
@@ -517,7 +517,7 @@
   /* Very narrow phones (≤380px) — e.g. iPhone SE */
   @media (max-width: 380px) {
     .tab { font-size: 11px; padding: 7px 1px; }
-    .beaker-wrap { max-width: 250px; }
+    .beaker-wrap { max-width: 55vw; }
     .beaker { height: min(310px, 66vh); }
     .pomo-tomato { width: 130px; height: 130px; }
     .pomo-time { font-size: 30px; }
