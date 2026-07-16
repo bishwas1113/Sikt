@@ -46,7 +46,11 @@ function readAll() {
           obj[k] = obj[k] ? String(obj[k]) : "";
         }
       });
-      obj.updatedAt = obj.updatedAt ? String(obj.updatedAt) : "";
+      if (obj.updatedAt instanceof Date) {
+        obj.updatedAt = Utilities.formatDate(obj.updatedAt, Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ss");
+      } else {
+        obj.updatedAt = obj.updatedAt ? String(obj.updatedAt) : "";
+      }
       return obj;
     });
 }
@@ -160,7 +164,7 @@ function doPost(e) {
 // A record is "recently created" if its ID-embedded timestamp is within last 5 minutes
 function isRecentlyCreated(rec) {
   if (!rec || !rec.id) return false;
-  const m = String(rec.id).match(/^rec_(\d+)_/);
+  const m = String(rec.id).match(/^(?:t|r)_(\d+)_/);
   if (!m) return false;
   const created = parseInt(m[1], 10);
   return (Date.now() - created) < 5 * 60 * 1000;

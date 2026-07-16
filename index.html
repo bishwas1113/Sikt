@@ -138,6 +138,12 @@
     border-top: 1px solid rgba(0,0,0,0.04);
     transition: opacity 0.2s;
   }
+  .beaker-segment.dragging {
+    opacity: 0.95;
+    box-shadow: var(--shadow-lg), 0 0 0 2px var(--accent);
+    z-index: 100;
+    cursor: grabbing !important;
+  }
 
   /* Embedded ruler */
   .ruler-overlay { 
@@ -565,6 +571,16 @@
           </div>
           <div class="task-list" id="taskList"></div>
         </div>
+
+        <div class="panel" style="margin-top: 14px;" id="reflectionPanel">
+          <div class="panel-header">
+            <div class="panel-title"><svg class="icon icon-sm"><use href="#i-moon"/></svg>Reflection</div>
+            <div class="panel-count" id="reflectionCount">0/2 sentences</div>
+          </div>
+          <div class="form-row" style="margin:0">
+            <textarea id="todayReflection" placeholder="How was your day? Write a brief reflection (max 2 sentences)..." rows="2" oninput="onReflectionInput()"></textarea>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -716,6 +732,10 @@
       <label>Time (optional)</label>
       <input type="time" id="t_time" />
       <div style="font-size: 11px; color: var(--text-3); margin-top: 4px;">Leave blank for "anytime today".</div>
+    </div>
+    <div class="form-row" id="dateRow">
+      <label>Date</label>
+      <input type="date" id="t_date" />
     </div>
     <div class="form-row" id="repeatRow">
       <label>Repeat <span style="color:var(--text-3); font-weight:400; text-transform:none;">(optional)</span></label>
@@ -869,6 +889,7 @@ let editing = { id: null, type: "task", chunk: 30, days: [] };
 let _editingIsRoutine = false;
 let rescheduleTargetId = null;
 let durationContext = { id: null, estimate: 0, actual: 0 };
+let draggingTaskId = null;
 
 function todayIso() {
   const d = new Date();
@@ -904,6 +925,7 @@ function loadLocal() {
       state.wakeTime = p.wakeTime || "07:00";
       state.bedTime = p.bedTime || "22:30";
       state.deletedRoutineInstances = p.deletedRoutineInstances || [];
+      state.reflections = p.reflections || {};
     } else {
       // Migration from v1
       const v1 = localStorage.getItem("today_v1");
@@ -913,6 +935,7 @@ function loadLocal() {
         state.routines = p.routines || [];
         state.wakeTime = p.wakeTime || "07:00";
         state.bedTime = p.bedTime || "22:30";
+        state.reflections = {};
         saveLocal();
       }
     }
@@ -931,6 +954,7 @@ function saveLocal() {
       tasks: state.tasks, routines: state.routines,
       wakeTime: state.wakeTime, bedTime: state.bedTime,
       deletedRoutineInstances: state.deletedRoutineInstances,
+      reflections: state.reflections || {},
     }));
     // Every local save marks state as dirty (unsynced changes exist).
     // Cleared only after a successful push.
@@ -1014,6 +1038,7 @@ async function pullFromServer() {
       if (data.settings) {
         if (data.settings.wakeTime) state.wakeTime = data.settings.wakeTime;
         if (data.settings.bedTime) state.bedTime = data.settings.bedTime;
+        if (data.settings.reflections) state.reflections = data.settings.reflections;
       }
       // Persist pulled state to localStorage WITHOUT marking dirty.
       // Inline write since saveLocal() would set dirty=true.
@@ -1021,6 +1046,7 @@ async function pullFromServer() {
         tasks: state.tasks, routines: state.routines,
         wakeTime: state.wakeTime, bedTime: state.bedTime,
         deletedRoutineInstances: state.deletedRoutineInstances,
+        reflections: state.reflections || {},
       }));
       // After successful pull, local matches server. Clear dirty, set baseline count.
       state.dirty = false;
@@ -1081,7 +1107,7 @@ async function syncNow(silent = false) {
       body: JSON.stringify({
         action: "sync",
         records,
-        settings: { wakeTime: state.wakeTime, bedTime: state.bedTime },
+        settings: { wakeTime: state.wakeTime, bedTime: state.bedTime, reflections: state.reflections || {} },
       }),
     });
     const data = await res.json();
@@ -1092,7 +1118,10 @@ async function syncNow(silent = false) {
     state.lastSyncedCount = currentCount;
     localStorage.setItem("today_v2_lastSyncedCount", String(currentCount));
     updateSyncStatus("connected", "Synced • " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
-    if (!silent) toast("Synced");
+    if (!silent) {
+      await pullFromServer();
+      toast("Sync complete");
+    }
   } catch (e) {
     console.error(e);
     updateSyncStatus("error", "Sync failed");
@@ -1240,7 +1269,11 @@ function renderBeaker() {
   const today = tasksForDate(todayIso());
   const timedBlocks = today
     .filter(t => t.time)
-    .map(t => { const start = timeToMin(t.time); return { id: t.id, title: t.title, type: t.type || "task", chunk: t.chunk || 30, start, end: start + (t.chunk || 30), done: !!t.done }; })
+    .map(t => {
+      let start = timeToMin(t.time);
+      if (bed <= wake && start < wake) start += 24*60;
+      return { id: t.id, title: t.title, type: t.type || "task", chunk: t.chunk || 30, start, end: start + (t.chunk || 30), done: !!t.done };
+    })
     .sort((a,b) => a.start - b.start);
 
   const inner = document.getElementById("beakerInner");
@@ -1265,7 +1298,11 @@ function renderBeaker() {
     else if (b.type === "task") cls = "seg-planned";
     if (now >= b.start && now < b.end && !b.done) cls += " seg-active";
     if (b.done) cls = "seg-done";
-    html += `<div class="beaker-segment ${cls}" style="bottom:${bottom}%; height:${h}%" title="${escapeHtml(b.title)}">
+    
+    if (b.id === draggingTaskId) cls += " dragging";
+    const cursorStyle = b.done ? "" : "cursor: grab;";
+    
+    html += `<div class="beaker-segment ${cls}" style="bottom:${bottom}%; height:${h}%; ${cursorStyle}" title="${escapeHtml(b.title)}" data-id="${b.id}">
       <span class="seg-label">${escapeHtml(b.title)}</span>
       <span class="seg-time">${format12Short(minToTime(b.start))}</span>
     </div>`;
@@ -1403,7 +1440,10 @@ function renderWaterfall() {
 function isBehind(t) {
   if (t.done) return false;
   if (!t.time) return false;
-  const start = timeToMin(t.time);
+  let start = timeToMin(t.time);
+  const wake = timeToMin(state.wakeTime);
+  const bed = timeToMin(state.bedTime);
+  if (bed <= wake && start < wake) start += 24*60;
   const end = start + (t.chunk || 30);
   return nowMin() > end;
 }
@@ -1502,33 +1542,66 @@ function renderHistoryDay() {
     ? state.tasks.filter(t => t.date === iso)
     : allTasksForDateIncludingSkipped(iso);
   const view = document.getElementById("historyDayView");
-  if (tasks.length === 0) { view.innerHTML = `<div class="empty">Nothing planned or recorded for this day.</div>`; return; }
+  const d = new Date(iso + "T00:00:00");
+  const dateLabel = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const isTodayOrFuture = iso >= today;
+  
+  const addBtnHtml = isTodayOrFuture
+    ? `<button class="btn btn-sm btn-primary" onclick="openAddTaskForDate('${iso}')" style="margin-left: 12px;"><svg class="icon icon-sm"><use href="#i-plus"/></svg>Add Task</button>`
+    : "";
+
+  const reflectionText = (state.reflections && state.reflections[iso]) ? state.reflections[iso] : "";
+  const reflectionHtml = reflectionText
+    ? `
+      <div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 18px 0 8px; display: flex; align-items: center; gap: 6px;">
+        <svg class="icon icon-sm"><use href="#i-moon"/></svg>Reflection
+      </div>
+      <div style="font-size: 13px; font-style: italic; color: var(--text-2); background: var(--surface-2); padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--border); line-height: 1.4; margin-bottom: 14px;">
+        "${escapeHtml(reflectionText)}"
+      </div>
+    `
+    : "";
+
+  if (tasks.length === 0) {
+    view.innerHTML = `
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px;">
+        <div style="font-family:'Fraunces',serif; font-size: 17px;">${dateLabel}</div>
+        ${addBtnHtml}
+      </div>
+      ${reflectionHtml}
+      <div class="empty">Nothing planned or recorded for this day.</div>
+    `;
+    return;
+  }
   const done = tasks.filter(t => t.done);
   const skipped = tasks.filter(t => t.skipped);
   const pending = tasks.filter(t => !t.done && !t.skipped);
-  const d = new Date(iso + "T00:00:00");
-  const dateLabel = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-  const isToday = iso === today;
   view.innerHTML = `
-    <div style="font-family:'Fraunces',serif; font-size: 17px; margin-bottom: 6px;">${dateLabel}</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px;">
+      <div style="font-family:'Fraunces',serif; font-size: 17px;">${dateLabel}</div>
+      ${addBtnHtml}
+    </div>
     <div style="font-size:12px; color: var(--text-2); margin-bottom: 14px;">${done.length} done · ${skipped.length} skipped · ${pending.length} pending</div>
+    ${reflectionHtml}
     ${done.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Done</div>` : ""}
-    <div class="task-list">${done.map(t => historyRow(t, isToday)).join("")}</div>
+    <div class="task-list">${done.map(t => historyRow(t, isTodayOrFuture)).join("")}</div>
     ${pending.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Pending</div>` : ""}
-    <div class="task-list">${pending.map(t => historyRow(t, isToday)).join("")}</div>
+    <div class="task-list">${pending.map(t => historyRow(t, isTodayOrFuture)).join("")}</div>
     ${skipped.length ? `<div style="font-size: 11px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin: 14px 0 8px;">Skipped</div>` : ""}
-    <div class="task-list">${skipped.map(t => historyRow(t, isToday)).join("")}</div>`;
+    <div class="task-list">${skipped.map(t => historyRow(t, isTodayOrFuture)).join("")}</div>`;
 }
-function historyRow(t, isToday) {
+function historyRow(t, isTodayOrFuture) {
   const timeStr = t.time ? format12Short(t.time) : "anytime";
   const chunkStr = (t.chunk || 30) >= 60 ? `${(t.chunk/60).toFixed(t.chunk%60?1:0)}h` : `${t.chunk}m`;
   const actualStr = t.actualMin ? ` (actual ${t.actualMin>=60?(t.actualMin/60).toFixed(t.actualMin%60?1:0)+'h':t.actualMin+'m'})` : "";
-  // Show Undo button for today's done OR skipped tasks
-  const undoBtn = (isToday && (t.done || t.skipped))
-    ? `<div class="task-actions"><button class="icon-btn" onclick="event.stopPropagation(); toggleDone('${t.id}'); renderHistory();" title="Undo">↺</button></div>`
+  // Show Undo button for today/future's done OR skipped tasks
+  const undoBtn = (isTodayOrFuture && (t.done || t.skipped))
+    ? `<div class="task-actions"><button class="icon-btn" onclick="event.stopPropagation(); toggleDone('${t.id}');" title="Undo">↺</button></div>`
     : "";
-  return `<div class="task ${t.done?'done':''} ${t.skipped?'done':''}">
-    <div class="task-check ${t.done?'done':''}">${t.done?'<svg class="icon icon-sm"><use href="#i-check"/></svg>':''}</div>
+  const clickAttr = isTodayOrFuture ? `onclick="editTask('${t.id}')" style="cursor: pointer;"` : "";
+  const checkClick = isTodayOrFuture ? `onclick="event.stopPropagation(); toggleDone('${t.id}')" style="cursor: pointer;"` : "";
+  return `<div class="task ${t.done?'done':''} ${t.skipped?'done':''}" ${clickAttr}>
+    <div class="task-check ${t.done?'done':''}" ${checkClick}>${t.done?'<svg class="icon icon-sm"><use href="#i-check"/></svg>':''}</div>
     <div class="task-time">${timeStr}</div>
     <div class="task-body"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-meta">${chunkStr}${actualStr}</div></div>
     ${undoBtn}
@@ -1557,6 +1630,11 @@ function renderRoutines() {
 
 /* ============ TASK CRUD ============ */
 function openAddTask() { openTaskModal(null, "task"); }
+function openAddTaskForDate(iso) {
+  openTaskModal(null, "task");
+  const dateInput = document.getElementById("t_date");
+  if (dateInput) dateInput.value = iso;
+}
 function openAddRoutine() { openTaskModal(null, "task", true); }
 function editTask(id) {
   const t = state.tasks.find(x => x.id === id);
@@ -1579,6 +1657,18 @@ function openTaskModal(t, type, isRoutine = false) {
   setChunk(editing.chunk);
   document.querySelectorAll(".day-pill").forEach(p => { p.classList.toggle("active", editing.days.includes(+p.dataset.day)); });
   document.getElementById("deleteBtn").style.display = t ? "inline-flex" : "none";
+  
+  const dateRow = document.getElementById("dateRow");
+  if (dateRow) {
+    if (isRoutine) {
+      dateRow.style.display = "none";
+    } else {
+      dateRow.style.display = "block";
+      const dateVal = t ? t.date : (document.getElementById("tab-history").style.display !== "none" ? state.selectedHistoryDate : todayIso());
+      document.getElementById("t_date").value = dateVal;
+    }
+  }
+
   // For an existing TASK (not routine), hide the repeat row entirely to avoid confusion
   document.getElementById("repeatRow").style.display = (t && !isRoutine) ? "none" : "block";
   document.getElementById("taskModal").classList.add("show");
@@ -1600,6 +1690,8 @@ function saveTask() {
     if (existing) {
       existing.title = title; existing.type = editing.type;
       existing.chunk = editing.chunk; existing.time = time;
+      const dateInput = document.getElementById("t_date");
+      if (dateInput) existing.date = dateInput.value;
       existing.updatedAt = nowIso();
     }
     toast("Task saved");
@@ -1632,10 +1724,12 @@ function saveTask() {
     });
     toast("Routine saved");
   } else {
+    const dateInput = document.getElementById("t_date");
+    const taskDate = dateInput ? dateInput.value : todayIso();
     state.tasks.push({
       id: newId(),
       title, type: editing.type, chunk: editing.chunk, time,
-      date: todayIso(), done: false,
+      date: taskDate, done: false,
       updatedAt: nowIso(),
     });
     toast("Task saved");
@@ -2304,6 +2398,48 @@ function escapeHtml(s) { return String(s || "").replace(/[&<>"']/g, m => ({"&":"
 let toastTimer = null;
 function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2000); }
 
+/* ============ REFLECTION ============ */
+function countSentences(text) {
+  if (!text.trim()) return 0;
+  const sentences = text.trim().split(/[.!?]+(?:\s+|$)/).filter(Boolean);
+  return sentences.length;
+}
+
+let reflectionTimer = null;
+function onReflectionInput() {
+  const text = document.getElementById("todayReflection").value;
+  const count = countSentences(text);
+  const countEl = document.getElementById("reflectionCount");
+  if (countEl) {
+    countEl.textContent = `${count}/2 sentences`;
+    countEl.style.color = count > 2 ? "var(--danger)" : "var(--text-3)";
+  }
+  
+  if (!state.reflections) state.reflections = {};
+  state.reflections[todayIso()] = text;
+  
+  clearTimeout(reflectionTimer);
+  reflectionTimer = setTimeout(() => {
+    saveLocal();
+    queueSync();
+  }, 1000);
+}
+
+function renderReflection() {
+  const today = todayIso();
+  const text = (state.reflections && state.reflections[today]) ? state.reflections[today] : "";
+  const el = document.getElementById("todayReflection");
+  if (el && document.activeElement !== el) {
+    el.value = text;
+    const count = countSentences(text);
+    const countEl = document.getElementById("reflectionCount");
+    if (countEl) {
+      countEl.textContent = `${count}/2 sentences`;
+      countEl.style.color = count > 2 ? "var(--danger)" : "var(--text-3)";
+    }
+  }
+}
+
 /* ============ RENDER ALL ============ */
 function render() {
   renderClock();
@@ -2312,8 +2448,124 @@ function render() {
   renderStatus();
   renderWaterfall();
   renderAgenda();
+  renderReflection();
   if (document.getElementById("tab-history").style.display !== "none") renderHistory();
   if (document.getElementById("tab-routines").style.display !== "none") renderRoutines();
+}
+
+/* ============ DRAG AND DROP ============ */
+let dragContext = null;
+function minFromPct(pct) {
+  const wake = timeToMin(state.wakeTime);
+  const bed = timeToMin(state.bedTime);
+  const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
+  const visualLen = bedAdj - wake + 60; // 1hr buffer above bedtime
+  return (pct / 100) * visualLen + wake;
+}
+
+function initDragAndDrop() {
+  const beaker = document.querySelector(".beaker");
+  if (!beaker) return;
+
+  beaker.addEventListener("mousedown", onDragStart);
+  beaker.addEventListener("touchstart", onDragStart, { passive: false });
+
+  function onDragStart(e) {
+    const seg = e.target.closest(".beaker-segment");
+    if (!seg) return;
+    const taskId = seg.dataset.id;
+    if (!taskId) return;
+
+    const task = state.tasks.find(t => t.id === taskId);
+    if (!task || task.done) return;
+
+    e.preventDefault();
+
+    const rect = beaker.getBoundingClientRect();
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const wake = timeToMin(state.wakeTime);
+    const bed = timeToMin(state.bedTime);
+    const bedAdj = (bed <= wake) ? bed + 24*60 : bed;
+    const visualLen = bedAdj - wake + 60;
+
+    const yFromBottom = rect.bottom - clientY;
+    const pct = (yFromBottom / rect.height) * 100;
+    const initPointerMin = (pct / 100) * visualLen + wake;
+
+    let initTaskStartMin = timeToMin(task.time);
+    if (bed <= wake && initTaskStartMin < wake) initTaskStartMin += 24*60;
+    const offsetMin = initPointerMin - initTaskStartMin;
+
+    draggingTaskId = taskId;
+    seg.classList.add("dragging");
+
+    dragContext = {
+      task,
+      beaker,
+      rect,
+      wake,
+      bedAdj,
+      visualLen,
+      offsetMin,
+      initialTime: task.time,
+      hasMoved: false
+    };
+
+    document.addEventListener("mousemove", onDragMove);
+    document.addEventListener("touchmove", onDragMove, { passive: false });
+    document.addEventListener("mouseup", onDragEnd);
+    document.addEventListener("touchend", onDragEnd);
+  }
+
+  function onDragMove(e) {
+    if (!dragContext) return;
+    e.preventDefault();
+
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const rect = dragContext.rect;
+    
+    const yFromBottom = rect.bottom - clientY;
+    const pct = (yFromBottom / rect.height) * 100;
+    const currentPointerMin = (pct / 100) * dragContext.visualLen + dragContext.wake;
+
+    let newTaskStartMin = currentPointerMin - dragContext.offsetMin;
+    let snappedMin = Math.round(newTaskStartMin / 15) * 15;
+
+    const maxStart = dragContext.bedAdj + 60 - (dragContext.task.chunk || 30);
+    snappedMin = Math.max(dragContext.wake, Math.min(maxStart, snappedMin));
+
+    const newTimeStr = minToTime(snappedMin);
+    if (dragContext.task.time !== newTimeStr) {
+      dragContext.task.time = newTimeStr;
+      dragContext.hasMoved = true;
+      renderBeaker();
+    }
+  }
+
+  function onDragEnd(e) {
+    if (!dragContext) return;
+    document.removeEventListener("mousemove", onDragMove);
+    document.removeEventListener("touchmove", onDragMove);
+    document.removeEventListener("mouseup", onDragEnd);
+    document.removeEventListener("touchend", onDragEnd);
+
+    const task = dragContext.task;
+    const wasMoved = dragContext.hasMoved;
+    const initialTime = dragContext.initialTime;
+
+    draggingTaskId = null;
+    renderBeaker();
+
+    if (wasMoved && task.time !== initialTime) {
+      task.updatedAt = nowIso();
+      saveLocal();
+      queueSync();
+      render();
+      toast(`Moved to ${format12(task.time)}`);
+    }
+    dragContext = null;
+  }
 }
 
 /* ============ INIT ============ */
@@ -2324,6 +2576,7 @@ function init() {
   pomoLoadPersistent();
   render();
   handleStartupSync();
+  initDragAndDrop();
   setInterval(() => render(), 30000);
   // If a pomo session was running when page closed, restart the ticker
   if (pomoSession.status === "running") {
