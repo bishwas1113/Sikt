@@ -426,15 +426,17 @@
     }
     .beaker-wrap {
       width: 100%;
-      max-width: 320px;
+      max-width: 280px;
       margin: 0 auto;
     }
-    .beaker { height: 380px; }
+    .beaker { height: 340px; }
     .clock { font-size: 32px; }
 
     /* Waterfall: compact 2-column grid on mobile — bars hidden, just icon+label+value */
     #waterfallMobile {
-      display: block;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 4px;
       margin-top: 0;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -442,10 +444,10 @@
       padding: 10px 14px;
     }
     #waterfallMobile .wf-row {
-      display: inline-flex;
-      width: 50%;
+      display: flex;
+      width: 100%;
       box-sizing: border-box;
-      padding: 6px 4px;
+      padding: 4px 0;
       gap: 6px;
       font-size: 12px;
     }
@@ -508,8 +510,8 @@
   /* Very narrow phones (≤380px) — e.g. iPhone SE */
   @media (max-width: 380px) {
     .tab { font-size: 11px; padding: 7px 1px; }
-    .beaker-wrap { max-width: 290px; }
-    .beaker { height: 340px; }
+    .beaker-wrap { max-width: 250px; }
+    .beaker { height: 310px; }
     .pomo-tomato { width: 130px; height: 130px; }
     .pomo-time { font-size: 30px; }
   }
