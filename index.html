@@ -395,29 +395,40 @@
   }
 
   @media (max-width: 720px) {
-    /* Core layout */
+    /* Prevent iOS auto-zoom on focus by enforcing 16px font-size for input elements */
+    input, textarea, select, 
+    .form-row input, .form-row select, .form-row textarea,
+    #shopInput, #todayReflection {
+      font-size: 16px !important;
+    }
+
+    /* Core layout & general mobile typography */
+    body { font-size: 14px; }
     .app { padding: 12px 12px 90px; }
-    .header { gap: 6px; flex-wrap: nowrap; }
-    .brand-title { font-size: 15px; }
+    .header { gap: 6px; flex-wrap: nowrap; margin-bottom: 12px; }
+    .brand-title { font-size: 18px; font-weight: 700; }
     .brand-date { display: none; } /* hide long date string, saves space */
     .sync-status { display: none; } /* moved to settings on mobile */
 
     /* Tabs — shrink labels, hide icon on smallest screens */
-    .tabs { width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); }
-    .tab { padding: 7px 4px; font-size: 11px; gap: 3px; justify-content: center; }
-    .tab .icon-sm { display: none; } /* icon takes too much space at 4 tabs */
+    .tabs { width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); margin-bottom: 14px; }
+    .tab { padding: 8px 2px; font-size: 12px; font-weight: 600; gap: 3px; justify-content: center; }
+    .tab .icon-sm { display: none; } /* icon takes too much space at 5 tabs */
 
-    /* Today tab: stack beaker above agenda, constrain beaker width */
+    /* Today tab: stack beaker above agenda, constrain beaker width and center it */
     .main-grid { grid-template-columns: 1fr; gap: 14px; }
     .beaker-card {
       position: static;
       max-width: 100%;
+      padding: 14px;
     }
     .beaker-wrap {
-      max-width: 50%;
+      width: 100%;
+      max-width: 320px;
       margin: 0 auto;
     }
-    .beaker { height: 320px; }
+    .beaker { height: 380px; }
+    .clock { font-size: 32px; }
 
     /* Waterfall: tighten up */
     .wf-bar-wrap { flex: 1.5; }
@@ -437,12 +448,17 @@
     #waterfallMobile { display: block; }
 
     /* Status bar: slightly smaller */
-    .status-bar { padding: 10px 14px; font-size: 13px; }
+    .status-bar { padding: 12px 16px; font-size: 14px; }
+
+    /* Panels */
+    .panel { padding: 14px 16px; }
+    .panel-title { font-size: 13px; font-weight: 700; }
 
     /* Agenda tasks */
+    .task { padding: 12px 10px; }
     .task-actions { opacity: 1; }
     .task-check { width: 22px; height: 22px; }
-    .task-title { font-size: 13px; }
+    .task-title { font-size: 15px; }
 
     /* Pomodoro tab: single column, smaller tomato */
     .pomo-wrap { grid-template-columns: 1fr; gap: 14px; }
@@ -469,8 +485,9 @@
 
   /* Very narrow phones (≤380px) — e.g. iPhone SE */
   @media (max-width: 380px) {
-    .tab { font-size: 10px; padding: 6px 2px; }
-    .beaker { height: 280px; }
+    .tab { font-size: 11px; padding: 7px 1px; }
+    .beaker-wrap { max-width: 290px; }
+    .beaker { height: 340px; }
     .pomo-tomato { width: 130px; height: 130px; }
     .pomo-time { font-size: 30px; }
   }
