@@ -137,6 +137,8 @@
     font-size: 10.5px; color: var(--text-2);
     border-top: 1px solid rgba(0,0,0,0.04);
     transition: opacity 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .beaker-segment.dragging {
     opacity: 0.95;
@@ -429,33 +431,38 @@
       max-width: 280px;
       margin: 0 auto;
     }
-    .beaker { height: 340px; }
+    .beaker { height: min(340px, 66vh); }
     .clock { font-size: 32px; }
 
-    /* Waterfall: compact 2-column grid on mobile — bars hidden, just icon+label+value */
+    /* Prevent horizontal overflow globally on mobile */
+    html, body { max-width: 100vw; overflow-x: hidden; }
+    .app { max-width: 100vw; overflow-x: hidden; box-sizing: border-box; }
+    .panel, .waterfall { box-sizing: border-box; max-width: 100%; }
+
+    /* Waterfall: 1 per line, legible fonts, show progress bar */
     #waterfallMobile {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 4px;
+      display: block;
       margin-top: 0;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 10px 14px;
+      padding: 12px 14px;
+      box-sizing: border-box;
+      width: 100%;
     }
     #waterfallMobile .wf-row {
       display: flex;
       width: 100%;
       box-sizing: border-box;
-      padding: 4px 0;
-      gap: 6px;
-      font-size: 12px;
+      padding: 6px 0;
+      gap: 10px;
+      font-size: 14px;
     }
-    #waterfallMobile .wf-bar-wrap { display: none; }
-    #waterfallMobile .wf-label { font-size: 11px; flex: 1; }
-    #waterfallMobile .wf-value { font-size: 12px; font-weight: 700; min-width: auto; }
-    #waterfallMobile .wf-icon { width: 18px; height: 18px; }
-    #waterfallMobile .wf-icon .icon { width: 11px; height: 11px; }
+    #waterfallMobile .wf-bar-wrap { display: block; flex: 1.5; min-width: 40px; }
+    #waterfallMobile .wf-label { font-size: 13px; flex: 2; white-space: normal; line-height: 1.2; }
+    #waterfallMobile .wf-value { font-size: 13px; font-weight: 700; min-width: 45px; text-align: right; }
+    #waterfallMobile .wf-icon { width: 20px; height: 20px; }
+    #waterfallMobile .wf-icon .icon { width: 12px; height: 12px; }
 
     /* Hide waterfall inside beaker-card on mobile (we render a clone outside) */
     .beaker-card .waterfall { display: none; }
@@ -511,7 +518,7 @@
   @media (max-width: 380px) {
     .tab { font-size: 11px; padding: 7px 1px; }
     .beaker-wrap { max-width: 250px; }
-    .beaker { height: 310px; }
+    .beaker { height: min(310px, 66vh); }
     .pomo-tomato { width: 130px; height: 130px; }
     .pomo-time { font-size: 30px; }
   }
@@ -2650,6 +2657,8 @@ function initDragAndDrop() {
   beaker.addEventListener("mousedown", onDragStart);
   beaker.addEventListener("touchstart", onDragStart, { passive: false });
 
+  let holdTimer = null;
+
   function onDragStart(e) {
     const seg = e.target.closest(".beaker-segment");
     if (!seg) return;
@@ -2659,8 +2668,27 @@ function initDragAndDrop() {
     const task = state.tasks.find(t => t.id === taskId);
     if (!task || task.done) return;
 
-    e.preventDefault();
+    // Desktop mouse: drag immediately. Touch: hold to drag.
+    if (e.type === "touchstart") {
+      holdTimer = setTimeout(() => {
+        startDrag(e, seg, taskId, task);
+      }, 400); // 400ms long press to activate drag
 
+      // If user moves finger or lifts finger before timer, cancel drag intent
+      const cancelHold = () => {
+        if (holdTimer) clearTimeout(holdTimer);
+        document.removeEventListener("touchmove", cancelHold);
+        document.removeEventListener("touchend", cancelHold);
+      };
+      document.addEventListener("touchmove", cancelHold, { once: true, passive: true });
+      document.addEventListener("touchend", cancelHold, { once: true });
+    } else {
+      e.preventDefault();
+      startDrag(e, seg, taskId, task);
+    }
+  }
+
+  function startDrag(e, seg, taskId, task) {
     const rect = beaker.getBoundingClientRect();
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
