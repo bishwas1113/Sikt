@@ -625,13 +625,7 @@
       <div class="waterfall" id="waterfallMobile"></div>
 
       <div class="agenda">
-        <div class="panel behind-tray" id="behindTray" style="display:none">
-          <div class="panel-header">
-            <div class="panel-title"><svg class="icon icon-sm"><use href="#i-clock"/></svg>Behind</div>
-            <div class="panel-count" id="behindCount">0</div>
-          </div>
-          <div class="task-list" id="behindList"></div>
-        </div>
+
 
         <div class="panel">
           <div class="panel-header">
@@ -1538,16 +1532,7 @@ function renderWaterfall() {
 }
 
 /* ============ RENDER: AGENDA ============ */
-function isBehind(t) {
-  if (t.done) return false;
-  if (!t.time) return false;
-  let start = timeToMin(t.time);
-  const wake = timeToMin(state.wakeTime);
-  const bed = timeToMin(state.bedTime);
-  if (bed <= wake && start < wake) start += 24*60;
-  const end = start + (t.chunk || 30);
-  return nowMin() > end;
-}
+
 function toggleMobileLayout() {
   state.mobileLayout = state.mobileLayout === "beaker-first" ? "list-first" : "beaker-first";
   saveLocal();
@@ -1556,15 +1541,8 @@ function toggleMobileLayout() {
 
 function renderAgenda() {
   const today = tasksForDate(todayIso());
-  const behindList = today.filter(isBehind);
-  const upcoming = today.filter(t => !isBehind(t));
-  const tray = document.getElementById("behindTray");
-  if (behindList.length === 0) tray.style.display = "none";
-  else {
-    tray.style.display = "block";
-    document.getElementById("behindCount").textContent = behindList.length;
-    document.getElementById("behindList").innerHTML = behindList.map(t => taskRow(t, true)).join("");
-  }
+  const upcoming = today.filter(t => !t.done);
+
   const grid = document.querySelector(".main-grid");
   if (state.mobileLayout === "list-first") grid.classList.add("list-first");
   else grid.classList.remove("list-first");
@@ -1580,19 +1558,17 @@ function renderAgenda() {
   if (upcoming.length === 0) {
     document.getElementById("taskList").innerHTML = `<div class="empty">Nothing scheduled.<div class="empty-sub">Click + Add Task to start.</div></div>`;
   } else {
-    document.getElementById("taskList").innerHTML = upcoming.map(t => taskRow(t, false)).join("");
+    document.getElementById("taskList").innerHTML = upcoming.map(t => taskRow(t)).join("");
   }
 }
-function taskRow(t, isBehindRow) {
+function taskRow(t) {
   const tagCls = t.type === "meal" ? "t-meal" : t.type === "appt" ? "t-appt" : t.type === "fixed" ? "t-fixed" : "";
   const typeLabel = t.type === "meal" ? "meal" : t.type === "appt" ? "appt" : t.type === "fixed" ? "block" : null;
   const timeStr = t.time ? format12Short(t.time) : "anytime";
   const chunkStr = (t.chunk || 30) >= 60 ? `${(t.chunk/60).toFixed(t.chunk%60?1:0)}h` : `${t.chunk}m`;
   const repeatTag = t.fromRoutine ? `<span class="task-tag t-repeat"><svg class="icon icon-sm"><use href="#i-repeat"/></svg></span>` : "";
   const typeTag = typeLabel ? `<span class="task-tag ${tagCls}">${typeLabel}</span>` : "";
-  const action = isBehindRow
-    ? `<button class="icon-btn" onclick="event.stopPropagation(); openReschedule('${t.id}')" title="Reschedule"><svg class="icon icon-sm"><use href="#i-clock"/></svg></button>`
-    : `<button class="icon-btn drag-handle" onclick="event.stopPropagation()" onmousedown="startTaskDrag(event, '${t.id}')" ontouchstart="startTaskDrag(event, '${t.id}')" style="cursor:grab" title="Drag to reorder"><svg class="icon icon-sm"><use href="#i-menu"/></svg></button>
+  const action = `<button class="icon-btn drag-handle" onclick="event.stopPropagation()" onmousedown="startTaskDrag(event, '${t.id}')" ontouchstart="startTaskDrag(event, '${t.id}')" style="cursor:grab" title="Drag to reorder"><svg class="icon icon-sm"><use href="#i-menu"/></svg></button>
        <button class="icon-btn" onclick="event.stopPropagation(); openReschedule('${t.id}')" title="Reschedule"><svg class="icon icon-sm"><use href="#i-clock"/></svg></button>
        <button class="icon-btn danger" onclick="event.stopPropagation(); deleteTask('${t.id}')" title="Delete"><svg class="icon icon-sm"><use href="#i-trash"/></svg></button>`;
   return `<div class="task ${t.done ? 'done' : ''}" data-id="${t.id}" onclick="editTask('${t.id}')">
@@ -2918,7 +2894,7 @@ function saveTaskOrder() {
   });
   
   const today = tasksForDate(todayIso());
-  const upcoming = today.filter(t => !isBehind(t));
+  const upcoming = today.filter(t => !t.done);
   
   upcoming.forEach(t => {
     if (newOrderMap[t.id] !== undefined) {
