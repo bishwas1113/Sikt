@@ -265,10 +265,6 @@
   .icon-btn:hover { background: var(--surface-2); color: var(--text); }
   .icon-btn.danger:hover { background: var(--danger-soft); color: var(--danger); }
 
-  .behind-tray { background: var(--warning-soft); border: 1px solid var(--warning); border-radius: var(--radius-lg); padding: 14px 16px; }
-  .behind-tray .panel-title { color: var(--warning); }
-  .behind-tray .task { border-bottom-color: rgba(196,150,90,0.15); }
-
   .btn { padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .btn:hover { background: var(--surface-2); border-color: var(--border-strong); }
   .btn-primary { background: var(--accent); color: var(--surface); border-color: var(--accent); }
@@ -544,6 +540,7 @@
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
     <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
     <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
     <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/></symbol>
     <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
     <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5M5 11l7 6 7-6M5 11V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6"/></symbol>
@@ -573,7 +570,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">Local only</span></div>
+      <div class="sync-status" onclick="syncNow()" style="cursor:pointer" title="Click to sync / push"><span class="sync-dot" id="syncDot"></span><span id="syncText">Local only</span></div>
       <button class="btn btn-sm mobile-only" onclick="toggleMobileLayout()"><svg class="icon icon-sm"><use href="#i-arrow-up-down"/></svg></button>
       <button class="btn btn-sm" onclick="openRoutinesModal()"><svg class="icon icon-sm"><use href="#i-repeat"/></svg>Routines</button>
       <button class="btn btn-sm" onclick="openSettings()"><svg class="icon icon-sm"><use href="#i-settings"/></svg>Settings</button>
@@ -911,7 +908,8 @@
     <div class="form-row"><label>Apps Script Web App URL</label><input type="text" id="syncUrl" placeholder="https://script.google.com/macros/s/…/exec" /></div>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="saveSyncUrl()"><svg class="icon icon-sm"><use href="#i-check"/></svg>Connect</button>
-      <button class="btn" onclick="syncNow()"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Sync Now</button>
+      <button class="btn" onclick="syncNow()"><svg class="icon icon-sm"><use href="#i-refresh"/></svg>Sync / Push</button>
+      <button class="btn" onclick="manualPull()"><svg class="icon icon-sm"><use href="#i-arrow-down"/></svg>Pull from Sheet</button>
       <button class="btn btn-danger" onclick="disconnectSync()"><svg class="icon icon-sm"><use href="#i-x"/></svg>Disconnect</button>
     </div>
 
@@ -1158,14 +1156,53 @@ async function pullFromServer() {
     updateSyncStatus("error", "Offline — using local");
   }
 }
+async function manualPull() {
+  if (!state.syncUrl) { toast("No sync URL set"); return; }
+  if (state.dirty) {
+    const ok = confirm("You have unsynced local changes. Pulling will replace your local data with data from the sheet.\n\n(Your local work will be saved in browser storage under 'today_v2_orphaned').\n\nProceed to Pull?");
+    if (!ok) return;
+    localStorage.setItem("today_v2_orphaned", JSON.stringify({
+      tasks: state.tasks,
+      routines: state.routines,
+      shoppingItems: state.shoppingItems,
+      stashedAt: new Date().toISOString(),
+    }));
+  }
+  await pullFromServer();
+  toast("Pulled fresh from sheet");
+}
+
 async function syncNow(silent = false) {
   if (!state.syncUrl) { if (!silent) toast("No sync URL set"); return; }
 
   // SAFETY 1: don't push until we've successfully pulled at least once on this device.
   if (!state.hydrated) {
-    updateSyncStatus("error", "Not synced yet — pull required");
-    if (!silent) toast("Can't push: try Pull from sheet first");
-    return;
+    if (!state.dirty) {
+      // Clean local state — safe to auto-pull immediately
+      await pullFromServer();
+      if (!silent) toast("Pulled fresh from sheet");
+      return;
+    } else {
+      // Local changes exist, but device never pulled before
+      if (silent) return;
+      const ok = confirm(
+        "This device has not pulled from the sheet yet, but has unsynced local edits.\n\n" +
+        "Click OK to PULL from sheet (your local work will be saved as a backup under 'today_v2_orphaned').\n" +
+        "Click CANCEL to FORCE PUSH your local edits to the sheet."
+      );
+      if (ok) {
+        localStorage.setItem("today_v2_orphaned", JSON.stringify({
+          tasks: state.tasks, routines: state.routines, shoppingItems: state.shoppingItems, stashedAt: new Date().toISOString()
+        }));
+        await pullFromServer();
+        toast("Pulled from sheet (local work backed up)");
+        return;
+      } else {
+        state.hydrated = true;
+        localStorage.setItem("today_v2_hydrated", "true");
+        state.lastSyncedCount = null;
+      }
+    }
   }
 
   // SAFETY 2: count sanity check — refuse to push if local is suspiciously smaller
@@ -1180,7 +1217,7 @@ async function syncNow(silent = false) {
         "with only " + currentCount + " records.\n\n" +
         "This usually means local data was lost or corrupted.\n\n" +
         "Click OK to FORCE PUSH (overwrites sheet — old data still recoverable from backup tab).\n" +
-        "Click CANCEL to abort (recommended — then reload to pull fresh from sheet)."
+        "Click CANCEL to abort (recommended — then pull fresh from sheet)."
       );
       if (!ok) {
         updateSyncStatus("error", "Push aborted — possible data loss");
