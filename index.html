@@ -1175,34 +1175,27 @@ async function manualPull() {
 async function syncNow(silent = false) {
   if (!state.syncUrl) { if (!silent) toast("No sync URL set"); return; }
 
-  // SAFETY 1: don't push until we've successfully pulled at least once on this device.
+  // SAFETY 1: must pull at least once before pushing so we don't overwrite
+  // the sheet with stale/empty local state.
   if (!state.hydrated) {
-    if (!state.dirty) {
-      // Clean local state — safe to auto-pull immediately
+    if (silent) return; // background timer — do nothing, wait for user to pull manually
+    // Offer to pull first, or force-push
+    const ok = confirm(
+      "This browser hasn't pulled from the sheet yet.\n\n" +
+      "Click OK to PULL from sheet first (recommended — loads your latest data).\n" +
+      "Click CANCEL to FORCE PUSH your local data to the sheet (overwrites the sheet)."
+    );
+    if (ok) {
       await pullFromServer();
-      if (!silent) toast("Pulled fresh from sheet");
-      return;
+      toast("Pulled from sheet ✓ — you can now sync/push changes");
     } else {
-      // Local changes exist, but device never pulled before
-      if (silent) return;
-      const ok = confirm(
-        "This device has not pulled from the sheet yet, but has unsynced local edits.\n\n" +
-        "Click OK to PULL from sheet (your local work will be saved as a backup under 'today_v2_orphaned').\n" +
-        "Click CANCEL to FORCE PUSH your local edits to the sheet."
-      );
-      if (ok) {
-        localStorage.setItem("today_v2_orphaned", JSON.stringify({
-          tasks: state.tasks, routines: state.routines, shoppingItems: state.shoppingItems, stashedAt: new Date().toISOString()
-        }));
-        await pullFromServer();
-        toast("Pulled from sheet (local work backed up)");
-        return;
-      } else {
-        state.hydrated = true;
-        localStorage.setItem("today_v2_hydrated", "true");
-        state.lastSyncedCount = null;
-      }
+      // Force hydration so the push below proceeds
+      state.hydrated = true;
+      localStorage.setItem("today_v2_hydrated", "true");
+      state.lastSyncedCount = null;
+      // fall through to push
     }
+    if (ok) return; // pulled, done
   }
 
   // SAFETY 2: count sanity check — refuse to push if local is suspiciously smaller
@@ -1250,14 +1243,11 @@ async function syncNow(silent = false) {
     state.lastSyncedCount = currentCount;
     localStorage.setItem("today_v2_lastSyncedCount", String(currentCount));
     updateSyncStatus("connected", "Synced • " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}));
-    if (!silent) {
-      await pullFromServer();
-      toast("Sync complete");
-    }
+    if (!silent) toast("Saved to sheet ✓");
   } catch (e) {
     console.error(e);
     updateSyncStatus("error", "Sync failed");
-    if (!silent) toast("Sync failed");
+    if (!silent) toast("Sync failed — check connection");
   }
 }
 function saveSyncUrl() {
